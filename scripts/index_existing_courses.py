@@ -14,7 +14,7 @@ def main():
     """Indexe tous les cours existants."""
     
     print("=" * 70)
-    print("📚 INDEXATION AUTOMATIQUE DES COURS AMU DATA SCIENCE")
+    print("INDEXATION AUTOMATIQUE DES COURS AMU DATA SCIENCE")
     print("=" * 70)
     
     # Chemins
@@ -31,16 +31,16 @@ def main():
     stats = indexer.scan_and_index_all()
     
     print("\n" + "=" * 70)
-    print("📊 RÉSUMÉ DE L'INDEXATION")
+    print("RÉSUMÉ DE L'INDEXATION")
     print("=" * 70)
-    print(f"✅ Fichiers scannés : {stats['total_files']}")
-    print(f"🆕 Nouveaux indexés : {stats['new_indexed']}")
-    print(f"🔄 Mis à jour : {stats['updated']}")
-    print(f"❌ Erreurs : {stats['errors']}")
+    print(f"Fichiers scannés : {stats['total_files']}")
+    print(f"Nouveaux indexés : {stats['new_indexed']}")
+    print(f"Mis à jour : {stats['updated']}")
+    print(f"Erreurs : {stats['errors']}")
     print("=" * 70)
     
     # Afficher les documents indexés
-    print("\n📖 DOCUMENTS INDEXÉS :")
+    print("\nDOCUMENTS INDEXÉS :")
     documents = indexer.get_all_documents()
     
     current_level = None
@@ -51,14 +51,14 @@ def main():
             print(f"Niveau {current_level}")
             print(f"{'='*70}")
         
-        print(f"\n📄 {doc['title']}")
+        print(f"\n{doc['title']}")
         print(f"   Catégorie: {doc['category']}")
         print(f"   Fichier: {doc['filename']}")
         print(f"   Pages: {doc['page_count']}")
         print(f"   Topics: {', '.join(doc['topics'])}")
         print(f"   Difficulté: {doc['difficulty']}")
     
-    print(f"\n✅ Indexation terminée ! Base de données : {index_db}")
+    print(f"\nIndexation terminée ! Base de données : {index_db}")
 
 if __name__ == "__main__":
     main()
