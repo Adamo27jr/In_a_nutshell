@@ -65,64 +65,64 @@ for folder in REQUIRED_FOLDERS:
 # INITIALISATION DES GESTIONNAIRES
 # ============================================================================
 
-print("🚀 Initialisation de l'application...")
+print("Initialisation de l'application...")
 
 # Gestionnaires existants
 try:
     document_processor = UniversalDocumentProcessor()
-    print("✅ UniversalDocumentProcessor initialisé")
+    print("UniversalDocumentProcessor initialisé")
 except Exception as e:
-    print(f"⚠️  Erreur UniversalDocumentProcessor: {e}")
+    print(f"Erreur UniversalDocumentProcessor: {e}")
     document_processor = None
 
 try:
     knowledge_base = AMUKnowledgeBase()
-    print("✅ AMUKnowledgeBase initialisé")
+    print("AMUKnowledgeBase initialisé")
 except Exception as e:
-    print(f"⚠️  Erreur AMUKnowledgeBase: {e}")
+    print(f"Erreur AMUKnowledgeBase: {e}")
     knowledge_base = None
 
 try:
     script_generator = AudioScriptGenerator()
-    print("✅ AudioScriptGenerator initialisé")
+    print("AudioScriptGenerator initialisé")
 except Exception as e:
-    print(f"⚠️  Erreur AudioScriptGenerator: {e}")
+    print(f"Erreur AudioScriptGenerator: {e}")
     script_generator = None
 
 try:
     audio_generator = AudioGenerator()
-    print("✅ AudioGenerator initialisé")
+    print("AudioGenerator initialisé")
 except Exception as e:
-    print(f"⚠️  Erreur AudioGenerator: {e}")
+    print(f"Erreur AudioGenerator: {e}")
     audio_generator = None
 
 try:
     quiz_manager = InteractiveQuizManager()
-    print("✅ InteractiveQuizManager initialisé")
+    print("InteractiveQuizManager initialisé")
 except Exception as e:
-    print(f"⚠️  Erreur InteractiveQuizManager: {e}")
+    print(f"Erreur InteractiveQuizManager: {e}")
     quiz_manager = None
 
 # Gestionnaires mobiles
 try:
     sync_manager = MobileSyncManager(database_path='database/amu_courses.db')
-    print("✅ MobileSyncManager initialisé")
+    print("MobileSyncManager initialisé")
 except Exception as e:
-    print(f"⚠️  Erreur MobileSyncManager: {e}")
+    print(f"Erreur MobileSyncManager: {e}")
     sync_manager = None
 
 try:
     qr_generator = QRCodeGenerator(output_dir='mobile/static/qr_codes')
-    print("✅ QRCodeGenerator initialisé")
+    print("QRCodeGenerator initialisé")
 except Exception as e:
-    print(f"⚠️  Erreur QRCodeGenerator: {e}")
+    print(f"Erreur QRCodeGenerator: {e}")
     qr_generator = None
 
 try:
     rt_manager = RealTimeInteractionManager()
-    print("✅ RealTimeInteractionManager initialisé")
+    print("RealTimeInteractionManager initialisé")
 except Exception as e:
-    print(f"⚠️  Erreur RealTimeInteractionManager: {e}")
+    print(f"Erreur RealTimeInteractionManager: {e}")
     rt_manager = None
 
 # Gestionnaire Gemini et indexeur
@@ -134,21 +134,21 @@ try:
         gemini_model = genai.GenerativeModel(
             model_name=os.getenv('GEMINI_MODEL', 'gemini-1.5-flash')
         )
-        print("✅ Gemini API configurée")
+        print("Gemini API configurée")
     else:
         gemini_model = None
-        print("⚠️  GOOGLE_API_KEY non trouvée dans .env")
+        print("GOOGLE_API_KEY non trouvée dans .env")
 except Exception as e:
-    print(f"⚠️  Erreur configuration Gemini: {e}")
+    print(f"Erreur configuration Gemini: {e}")
     gemini_model = None
 
 try:
     gemini_assistant = GeminiRAGAssistant(
         course_index_db='database/amu_courses.db'
     )
-    print("✅ GeminiRAGAssistant initialisé")
+    print("GeminiRAGAssistant initialisé")
 except Exception as e:
-    print(f"⚠️  Erreur GeminiRAGAssistant: {e}")
+    print(f"Erreur GeminiRAGAssistant: {e}")
     gemini_assistant = None
 
 try:
@@ -156,16 +156,14 @@ try:
         course_materials_path=os.getenv('COURSE_MATERIALS_PATH', 'data/course_materials'),
         index_db_path='database/amu_courses.db'
     )
-    print("✅ CourseIndexer initialisé")
+    print("CourseIndexer initialisé")
 except Exception as e:
-    print(f"⚠️  Erreur CourseIndexer: {e}")
+    print(f"Erreur CourseIndexer: {e}")
     course_indexer = None
 
-print("✅ Application initialisée avec succès!\n")
+print("Application initialisée avec succès!\n")
 
-# ============================================================================
 # FONCTIONS UTILITAIRES
-# ============================================================================
 
 def allowed_file(filename):
     """Vérifie si le fichier a une extension autorisée."""
@@ -176,9 +174,7 @@ def generate_unique_id():
     """Génère un ID unique."""
     return str(uuid.uuid4())
 
-# ============================================================================
 # ROUTES PRINCIPALES
-# ============================================================================
 
 @app.route('/')
 def index():
@@ -202,9 +198,7 @@ def health_check():
         }
     })
 
-# ============================================================================
 # ROUTES UPLOAD ET TRAITEMENT DE DOCUMENTS AVEC GEMINI
-# ============================================================================
 
 @app.route('/api/upload', methods=['POST'])
 def upload_file():
@@ -271,12 +265,12 @@ def upload_and_explain():
         file_path = Path(app.config['UPLOAD_FOLDER']) / f"{file_id}_{filename}"
         file.save(str(file_path))
         
-        print(f"📄 Fichier uploadé : {filename}")
+        print(f"Fichier uploadé : {filename}")
         
         # 2. Extraire le texte du document
         if document_processor:
             extracted_text = document_processor.process_document(str(file_path))
-            print(f"✅ Texte extrait : {len(extracted_text)} caractères")
+            print(f"Texte extrait : {len(extracted_text)} caractères")
         else:
             return jsonify({'error': 'Document processor non disponible'}), 500
         
@@ -284,7 +278,7 @@ def upload_and_explain():
             return jsonify({'error': 'Document trop court ou vide'}), 400
         
         # 3. Analyser le contenu pour identifier le sujet
-        print("🔍 Analyse du sujet avec Gemini...")
+        print("Analyse du sujet avec Gemini...")
         subject_prompt = f"""Analyse ce texte et identifie le sujet principal en quelques mots-clés pertinents pour la Data Science.
 
 Texte:
@@ -295,12 +289,12 @@ Ne donne pas d'explication, juste les mots-clés."""
         
         subject_response = gemini_model.generate_content(subject_prompt)
         keywords = subject_response.text.strip()
-        print(f"🏷️  Mots-clés identifiés : {keywords}")
+        print(f"Mots-clés identifiés : {keywords}")
         
         # 4. Chercher des cours pertinents dans data/course_materials/
         relevant_courses = []
         if gemini_assistant:
-            print("📚 Recherche de cours pertinents...")
+            print("Recherche de cours pertinents...")
             try:
                 relevant_chunks = gemini_assistant.find_relevant_chunks(
                     query=keywords,
@@ -323,12 +317,12 @@ Ne donne pas d'explication, juste les mots-clés."""
                         })
                         seen_docs.add(doc_id)
                 
-                print(f"✅ {len(relevant_courses)} cours pertinents trouvés")
+                print(f"{len(relevant_courses)} cours pertinents trouvés")
             except Exception as e:
-                print(f"⚠️  Erreur recherche de cours : {e}")
+                print(f"Erreur recherche de cours : {e}")
         
         # 5. Générer l'explication avec Gemini + références aux cours
-        print("🤖 Génération de l'explication avec Gemini...")
+        print("Génération de l'explication avec Gemini...")
         
         if relevant_courses:
             # Construire le contexte avec les cours trouvés
@@ -380,10 +374,10 @@ EXPLICATION DÉTAILLÉE:"""
             )
         )
         explanation = explanation_response.text
-        print("✅ Explication générée")
+        print("Explication générée")
         
         # 6. Générer un résumé court
-        print("📝 Génération du résumé...")
+        print("Génération du résumé...")
         summary_prompt = f"""Résume en 2-3 phrases claires le contenu principal de ce document:
 
 {extracted_text[:2000]}
@@ -407,11 +401,11 @@ Résumé concis:"""
             'text_preview': extracted_text[:500] + '...' if len(extracted_text) > 500 else extracted_text
         }
         
-        print(f"✅ Réponse complète générée pour {filename}")
+        print(f"Réponse complète générée pour {filename}")
         return jsonify(response_data)
     
     except Exception as e:
-        print(f"❌ Erreur : {e}")
+        print(f"Erreur : {e}")
         import traceback
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
@@ -503,9 +497,7 @@ def get_audio(file_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# ============================================================================
 # ROUTES GEMINI AI ASSISTANT
-# ============================================================================
 
 @app.route('/api/ask', methods=['POST'])
 def ask_question():
@@ -531,7 +523,7 @@ def ask_question():
         if not question:
             return jsonify({'error': 'Question requise'}), 400
         
-        print(f"❓ Question reçue : {question}")
+        print(f"Question reçue : {question}")
         
         # Obtenir la réponse avec références aux cours
         result = gemini_assistant.answer_question(
@@ -540,7 +532,7 @@ def ask_question():
             include_sources=include_sources
         )
         
-        print(f"✅ Réponse générée avec {len(result['sources'])} sources")
+        print(f"Réponse générée avec {len(result['sources'])} sources")
         
         return jsonify({
             'success': True,
@@ -553,7 +545,7 @@ def ask_question():
         })
     
     except Exception as e:
-        print(f"❌ Erreur : {e}")
+        print(f"Erreur : {e}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/chat', methods=['POST'])
@@ -614,7 +606,7 @@ def explain_topic():
         if not topic:
             return jsonify({'error': 'Topic requis'}), 400
         
-        print(f"📖 Explication demandée : {topic} (niveau: {detail_level})")
+        print(f"Explication demandée : {topic} (niveau: {detail_level})")
         
         # Chercher des cours pertinents
         relevant_courses = []
@@ -707,12 +699,10 @@ EXPLICATION:"""
         })
     
     except Exception as e:
-        print(f"❌ Erreur : {e}")
+        print(f"Erreur : {e}")
         return jsonify({'error': str(e)}), 500
 
-# ============================================================================
 # ROUTES GESTION DES COURS
-# ============================================================================
 
 @app.route('/api/courses')
 def list_courses():
@@ -889,7 +879,7 @@ def reindex_courses():
                 embeddings=gemini_assistant.chunk_embeddings,
                 chunk_data=np.array(gemini_assistant.chunk_data, dtype=object)
             )
-            print("✅ Cache d'embeddings sauvegardé")
+            print("Cache d'embeddings sauvegardé")
         
         return jsonify({
             'success': True,
@@ -898,12 +888,10 @@ def reindex_courses():
         })
     
     except Exception as e:
-        print(f"❌ Erreur réindexation : {e}")
+        print(f"Erreur réindexation : {e}")
         return jsonify({'error': str(e)}), 500
 
-# ============================================================================
 # ROUTES QUIZ
-# ============================================================================
 
 @app.route('/api/quiz/generate/<doc_id>')
 def generate_quiz(doc_id):
@@ -1068,9 +1056,7 @@ Format JSON strict (sans texte supplémentaire):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# ============================================================================
 # ROUTES MOBILE
-# ============================================================================
 
 @app.route('/mobile/create-session', methods=['POST'])
 def create_mobile_session():
@@ -1161,20 +1147,18 @@ def get_session_state(session_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# ============================================================================
 # WEBSOCKET EVENTS
-# ============================================================================
 
 @socketio.on('connect')
 def handle_connect():
     """Gère la connexion WebSocket."""
-    print(f"✅ Client connecté: {request.sid}")
+    print(f"Client connecté: {request.sid}")
     emit('connected', {'message': 'Connexion établie', 'sid': request.sid})
 
 @socketio.on('disconnect')
 def handle_disconnect():
     """Gère la déconnexion WebSocket."""
-    print(f"❌ Client déconnecté: {request.sid}")
+    print(f"Client déconnecté: {request.sid}")
 
 @socketio.on('join_session')
 def handle_join_session(data):
@@ -1187,7 +1171,7 @@ def handle_join_session(data):
     
     join_room(session_id)
     
-    print(f"📱 Client {request.sid} a rejoint la session {session_id}")
+    print(f"Client {request.sid} a rejoint la session {session_id}")
     
     emit('session_joined', {
         'message': 'Connecté à la session',
@@ -1211,7 +1195,7 @@ def handle_leave_session(data):
     
     leave_room(session_id)
     
-    print(f"📱 Client {request.sid} a quitté la session {session_id}")
+    print(f"Client {request.sid} a quitté la session {session_id}")
     
     # Notifier les autres participants
     emit('user_left', {
@@ -1252,18 +1236,14 @@ def handle_audio_control(data):
         'timestamp': datetime.now().isoformat()
     }, room=session_id, include_self=False)
 
-# ============================================================================
 # ROUTES STATIQUES
-# ============================================================================
 
 @app.route('/static/qr_codes/<filename>')
 def serve_qr_code(filename):
     """Sert les QR codes générés."""
     return send_from_directory('mobile/static/qr_codes', filename)
 
-# ============================================================================
 # GESTION DES ERREURS
-# ============================================================================
 
 @app.errorhandler(404)
 def not_found(error):
@@ -1275,22 +1255,20 @@ def internal_error(error):
     """Gestion des erreurs 500."""
     return jsonify({'error': 'Erreur interne du serveur'}), 500
 
-# ============================================================================
 # POINT D'ENTRÉE
-# ============================================================================
 
 if __name__ == '__main__':
     print("\n" + "="*70)
-    print("🚀 DÉMARRAGE DE L'APPLICATION AMU DATA SCIENCE")
+    print("DÉMARRAGE DE L'APPLICATION AMU DATA SCIENCE")
     print("="*70)
-    print(f"📍 URL: http://localhost:5000")
-    print(f"📱 API: http://localhost:5000/api/")
-    print(f"🤖 Gemini Model: {'✅ Actif' if gemini_model else '❌ Inactif'}")
-    print(f"🤖 Gemini Assistant: {'✅ Actif' if gemini_assistant else '❌ Inactif'}")
-    print(f"📚 Course Indexer: {'✅ Actif' if course_indexer else '❌ Inactif'}")
-    print(f"📱 Mobile Sync: {'✅ Actif' if sync_manager else '❌ Inactif'}")
+    print(f"URL: http://localhost:5000")
+    print(f"API: http://localhost:5000/api/")
+    print(f"Gemini Model: {'Actif' if gemini_model else 'Inactif'}")
+    print(f"Gemini Assistant: {'Actif' if gemini_assistant else 'Inactif'}")
+    print(f"Course Indexer: {'Actif' if course_indexer else 'Inactif'}")
+    print(f"Mobile Sync: {'Actif' if sync_manager else 'Inactif'}")
     print("="*70)
-    print("\n📋 ENDPOINTS PRINCIPAUX:")
+    print("\nENDPOINTS PRINCIPAUX:")
     print("  POST /api/upload-and-explain - Upload + Explication Gemini")
     print("  POST /api/ask - Poser une question")
     print("  POST /api/explain-topic - Expliquer un sujet")
