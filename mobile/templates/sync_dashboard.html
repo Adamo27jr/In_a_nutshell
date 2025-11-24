@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de Bord - AMU DataScience</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='mobile/css/mobile.css') }}">
+    <style>
+        .dashboard-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+        
+        .qr-code-section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .qr-code-img {
+            max-width: 300px;
+            margin: 20px auto;
+        }
+        
+        .session-url {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: monospace;
+            word-break: break-all;
+            margin: 20px 0;
+        }
+        
+        .connected-devices {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .device-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .device-icon {
+            font-size: 24px;
+            margin-right: 15px;
+        }
+        
+        .device-info h4 {
+            margin: 0 0 5px 0;
+        }
+        
+        .device-info p {
+            margin: 0;
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="qr-code-section">
+            <h1>📱 Connexion Mobile</h1>
+            <p>Scannez ce QR code avec votre téléphone pour rejoindre la session</p>
+            
+            <img src="{{ qr_code_url }}" alt="QR Code" class="qr-code-img" id="qr-code">
+            
+            <div class="session-url">
+                <strong>URL de session :</strong><br>
+                <span id="session-url">{{ join_url }}</span>
+            </div>
+            
+            <button class="btn-primary" onclick="copyUrl()">📋 Copier le lien</button>
+        </div>
+        
+        <div class="connected-devices">
+            <h2>🔗 Appareils Connectés</h2>
+            <div id="devices-list">
+                <p style="text-align: center; color: #666;">Aucun appareil connecté</p>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script>
+        function copyUrl() {
+            const url = document.getElementById('session-url').textContent;
+            navigator.clipboard.writeText(url).then(() => {
+                alert('✅ Lien copié !');
+            });
+        }
+        
+        // WebSocket pour afficher les appareils connectés
+        const socket = io();
+        const sessionId = "{{ session_id }}";
+        
+        socket.on('connect', () => {
+            socket.emit('join_session', { session_id: sessionId });
+        });
+        
+        socket.on('user_joined', (data) => {
+            updateDevicesList();
+        });
+        
+        socket.on('user_left', (data) => {
+            updateDevicesList();
+        });
+        
+        function updateDevicesList() {
+            // Mise à jour de la liste des appareils
+            // À implémenter selon vos besoins
+        }
+    </script>
+</body>
+</html>
