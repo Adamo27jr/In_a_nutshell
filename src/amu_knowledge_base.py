@@ -105,7 +105,7 @@ class AMUKnowledgeBase:
             Liste de résultats avec texte, métadonnées et scores
         """
         if self.index is None or len(self.chunks) == 0:
-            print("⚠️ Index vide, retour de résultats vides")
+            print("Index vide, retour de résultats vides")
             return []
         
         # Embedding de la query
