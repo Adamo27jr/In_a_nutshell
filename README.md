@@ -3,7 +3,7 @@
 
 Transforme tes documents d'étude (PDFs, couvertures de livres, notes de cours) en podcasts audio avec quiz auto-générés. Construit avec RAG, Gemini Vision AI, et optimisé pour l'apprentissage mobile en déplacement.
 
-## 🎯 Équipe
+## Équipe
 
 - Adam Belhassan
 - Antoine Legendre
@@ -11,7 +11,7 @@ Transforme tes documents d'étude (PDFs, couvertures de livres, notes de cours) 
 - Sabine Mansour
 - Lyna Kartout
 
-## 🚀 Installation
+## Installation
 
 ### Prérequis
 
