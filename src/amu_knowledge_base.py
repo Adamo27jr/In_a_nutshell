@@ -73,7 +73,7 @@ class AMUKnowledgeBase:
             return
         
         # Génération des embeddings
-        print(f"📊 Génération des embeddings pour {len(self.chunks)} chunks...")
+        print(f"Génération des embeddings pour {len(self.chunks)} chunks...")
         embeddings = self.embedding_model.encode(
             self.chunks,
             show_progress_bar=True,
