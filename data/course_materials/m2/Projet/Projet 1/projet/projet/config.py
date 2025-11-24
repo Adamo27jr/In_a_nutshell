@@ -1,0 +1,2 @@
+TEST_RATIO = 0.3
+SEED = 13

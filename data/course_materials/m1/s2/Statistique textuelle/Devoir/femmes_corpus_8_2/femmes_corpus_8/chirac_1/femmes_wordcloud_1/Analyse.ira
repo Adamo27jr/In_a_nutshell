@@ -1,0 +1,19 @@
+[wordcloud]
+type = wordcloud
+lem = 1
+pathout = C:\Users\andre\Downloads\femmes_corpus_8\chirac_1\femmes_wordcloud_1
+corpus = bc3fac7a-c20e-4a83-b06d-815897643dcf
+uuid = 26aeaa03-8b0c-4978-aba7-d9bdc8e80649
+name = femmes_wordcloud_1
+width = 800
+height = 800
+maxword = 600
+mincex = 0.5
+maxcex = 5.0
+col_text = (0, 0, 0, 255)
+col_bg = (255, 255, 255, 255)
+mode = 0
+svg = 0
+graphout = C:\Users\andre\Downloads\femmes_corpus_8\chirac_1\femmes_wordcloud_1\nuage_1.png
+time = 0h 0m 43s
+ira = C:\Users\andre\Downloads\femmes_corpus_8\chirac_1\femmes_wordcloud_1\Analyse.ira

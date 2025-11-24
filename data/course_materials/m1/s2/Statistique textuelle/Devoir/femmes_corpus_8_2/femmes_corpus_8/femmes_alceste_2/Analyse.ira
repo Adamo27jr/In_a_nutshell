@@ -1,0 +1,24 @@
+[alceste]
+type = alceste
+lem = 1
+mincl = 0
+nbforme_uce = 0
+max_actives = 20000
+tailleuc1 = 12
+nbcl = 4
+tailleuc2 = 14
+classif_mode = 1
+minforme = 2
+expressions = 1
+nbcl_p1 = 10
+svdmethod = irlba
+mode.patate = 0
+corpus = 601fd500-9245-4b17-9731-c461a30ba68a
+pathout = C:\Users\andre\Downloads\femmes_corpus_8\femmes_alceste_2
+uuid = d1f075ad-473c-4a00-9a03-3e3740fc93b6
+name = femmes_alceste_2
+eff_min_forme = 3
+nbactives = 292
+clnb = 3
+time = 0h 0m 9s
+ira = C:\Users\andre\Downloads\femmes_corpus_8\femmes_alceste_2\Analyse.ira

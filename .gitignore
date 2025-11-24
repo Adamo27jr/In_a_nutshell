@@ -1,0 +1,46 @@
+# Environment
+.env
+venv/
+env/
+ENV/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Generated files
+generated_podcasts/*.mp3
+data/amu_knowledge_base.pkl
+*.pkl
+*.faiss
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+temp_*
+*.tmp
+
+# Logs
+*.log
+
+# Exclude large course files
+data/course_materials/m2/Maths/Maths 1/Cours 1/data/cifar-10-python.tar.gz
+data/course_materials/m1/s1/Base de Données/TP1/hubway.db
+data/course_materials/m1/s2/Apprentissage/TP4/archive.zip
+data/course_materials/m1/s1/Manipulation de Données/TP1/TP1Données_Legendre.xlsx

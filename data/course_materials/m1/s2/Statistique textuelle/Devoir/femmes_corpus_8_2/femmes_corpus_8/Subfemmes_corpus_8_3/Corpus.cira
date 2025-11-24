@@ -1,0 +1,16 @@
+[corpus]
+type = corpus
+originalpath = C:\Users\andre\Downloads\femmes.txt
+encoding = utf-8
+corpus_name = Subfemmes_corpus_8
+pathout = C:\Users\andre\Downloads\femmes_corpus_8\Subfemmes_corpus_8_3
+meta = ['*loc_mitterand']
+uuid = a060f212-a601-48b6-82f2-138cd7be5a46
+ira = C:\Users\andre\Downloads\femmes_corpus_8\Subfemmes_corpus_8_3\Corpus.cira
+date = Sun May 18 21:11:20 2025
+time = 0h 0m 0s
+ucinb = 1
+ucenb = 139
+occurrences = 4827
+formesnb = 1327
+hapax = 834 - 62.85 % des formes - 17.28 % des occurrences

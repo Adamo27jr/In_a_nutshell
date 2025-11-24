@@ -1,0 +1,16 @@
+[corpus]
+type = corpus
+originalpath = C:\Users\andre\Downloads\femmes.txt
+encoding = utf-8
+corpus_name = Subfemmes_corpus_8
+pathout = C:\Users\andre\Downloads\femmes_corpus_8\Subfemmes_corpus_8_2
+meta = ['*loc_hollande']
+uuid = ad0fcfd0-c54d-4e12-9841-efe5d4ba13dd
+ira = C:\Users\andre\Downloads\femmes_corpus_8\Subfemmes_corpus_8_2\Corpus.cira
+date = Sun May 18 21:11:12 2025
+time = 0h 0m 0s
+ucinb = 1
+ucenb = 72
+occurrences = 2604
+formesnb = 784
+hapax = 531 - 67.73 % des formes - 20.39 % des occurrences

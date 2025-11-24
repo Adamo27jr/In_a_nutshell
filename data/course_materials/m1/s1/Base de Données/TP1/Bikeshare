@@ -1,0 +1,23 @@
+SELECT MAX(duration)
+FROM trips;
+
+SELECT COUNT(*)
+FROM trips
+WHERE sub_type = 'Registered';
+
+SELECT AVG(duration)
+FROM trips;
+
+SELECT sub_type, AVG(duration)
+FROM trips
+GROUP BY sub_type;
+
+SELECT bike_number, COUNT(*) 
+FROM trips
+GROUP BY bike_number
+ORDER BY COUNT(*) DESC
+LIMIT 1;
+
+SELECT AVG(duration)
+FROM trips
+WHERE (strftime('%Y', start_date) - strftime('%Y', birth_date)) > 30;

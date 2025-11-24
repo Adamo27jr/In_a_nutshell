@@ -1,0 +1,2 @@
+afct_row.png;lignes
+afct_col.png;colonnes

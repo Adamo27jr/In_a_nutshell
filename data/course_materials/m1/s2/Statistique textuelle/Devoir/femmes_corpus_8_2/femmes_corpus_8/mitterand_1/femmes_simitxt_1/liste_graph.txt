@@ -1,0 +1,1 @@
+graph_simi_1.png; - arbre maximum

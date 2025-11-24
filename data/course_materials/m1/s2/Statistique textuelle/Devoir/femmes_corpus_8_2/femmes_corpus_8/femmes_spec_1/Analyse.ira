@@ -1,0 +1,13 @@
+[spec]
+type = spec
+lem = 1
+mineff = 10
+indice = chi2
+typeformes = 0
+clnb = 3
+pathout = C:\Users\andre\Downloads\femmes_corpus_8\femmes_spec_1
+corpus = 601fd500-9245-4b17-9731-c461a30ba68a
+uuid = 7b104a8e-449b-4512-8760-565219afd43c
+name = femmes_spec_1
+ira = C:\Users\andre\Downloads\femmes_corpus_8\femmes_spec_1\Analyse.ira
+time = 0h 0m 3s

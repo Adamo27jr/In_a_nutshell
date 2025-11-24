@@ -1,0 +1,19 @@
+[wordcloud]
+type = wordcloud
+lem = 1
+pathout = C:\Users\andre\Downloads\femmes_corpus_8\hollande_1\femmes_wordcloud_1
+corpus = 252200a1-094e-4714-b8f7-0387bf42e7b4
+uuid = 65fd6f3a-95e6-40ba-9052-dbdd9b7ab252
+name = femmes_wordcloud_1
+width = 800
+height = 800
+maxword = 600
+mincex = 0.5
+maxcex = 5.0
+col_text = (0, 0, 0, 255)
+col_bg = (255, 255, 255, 255)
+mode = 0
+svg = 0
+graphout = C:\Users\andre\Downloads\femmes_corpus_8\hollande_1\femmes_wordcloud_1\nuage_1.png
+time = 0h 0m 5s
+ira = C:\Users\andre\Downloads\femmes_corpus_8\hollande_1\femmes_wordcloud_1\Analyse.ira

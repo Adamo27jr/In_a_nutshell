@@ -1,0 +1,49 @@
+import sqlite3
+import os
+
+# Create a new SQLite database
+db_file = 'onetable.db'
+if os.path.exists(db_file):
+  os.remove(db_file)
+
+conn = sqlite3.connect(db_file)
+cursor = conn.cursor()
+
+# Create one table
+cursor.execute('''
+CREATE TABLE Orders (
+  OrderID INTEGER PRIMARY KEY,
+  CustomerName TEXT,
+  CustomerEmail TEXT,
+  ProductID INTEGER,
+  ProductName TEXT,
+  Category TEXT,
+  Quantity INTEGER,
+  UnitPrice REAL
+)
+''')
+
+# Insert initial data
+initial_data = [
+  (1, 'Alice', 'alice@email.com', 101, 'Widget', 'Gadgets', 2, 10.00),
+  (2, 'Bob', 'bob@email.com', 102, 'Gizmo', 'Electronics', 1, 15.00),
+  (3, 'Alice', 'alice@email.com', 103, 'Doohickey', 'Gadgets', 3, 5.00),
+  (4, 'Charlie', 'charlie@email.com', 101, 'Widget', 'Gadgets', 1, 10.00)
+]
+
+cursor.executemany('INSERT INTO Orders VALUES (?,?,?,?,?,?,?,?)', initial_data)
+conn.commit()
+
+print("Initial data inserted. Open the database in DB Browser for SQLite to view the 'Orders' table.")
+
+
+# Demonstrate Anomaly_4
+print("\nDemonstrating Anomaly_4:")
+print("Inserting a 'NEW' product information")
+try:
+  cursor.execute("INSERT INTO Orders VALUES (5, 'David', 'david@email.com', 101, 'Widget', 'Electronics', 1, 12.00)")
+  conn.commit()
+  print("Check the 'Orders' table. What happened to 'Widget' ?")
+except:
+  print("Conclusion : Anomaly_4 est une anomalie de type ......")
+

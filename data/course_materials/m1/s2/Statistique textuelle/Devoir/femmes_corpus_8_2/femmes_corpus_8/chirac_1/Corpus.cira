@@ -1,0 +1,16 @@
+[corpus]
+type = corpus
+originalpath = C:\Users\andre\Downloads\femmes.txt
+encoding = utf-8
+corpus_name = chirac
+pathout = C:\Users\andre\Downloads\femmes_corpus_8\chirac_1
+meta = ['*loc_chirac']
+uuid = bc3fac7a-c20e-4a83-b06d-815897643dcf
+ira = C:\Users\andre\Downloads\femmes_corpus_8\chirac_1\Corpus.cira
+date = Sun May 18 21:13:14 2025
+time = 0h 0m 0s
+ucinb = 1
+ucenb = 22
+occurrences = 774
+formesnb = 334
+hapax = 225 - 67.37 % des formes - 29.07 % des occurrences

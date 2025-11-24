@@ -1,0 +1,5 @@
+AFC2DL.png;Variables actives - coordonnées - 30 points par classes - facteurs 1 / 2 - La position des points n'est peut être pas exacte
+AFC2DSL.png;variables supplémentaires - coordonnées - 30 points par classes - facteurs 1 / 2 - La position des points n'est peut être pas exacte
+AFC2DEL.png;Variables illustratives - Coordonnées - 30 points par classes - facteur 1 / 2 - La position des points n'est peut être pas exacte
+AFC2DCL.png;Classes - Coordonnées - facteur 1 / 2
+graph_afc_1.png;Variables actives - Coordonnées - facteur 1 / 2

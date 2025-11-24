@@ -1,0 +1,16 @@
+[corpus]
+type = corpus
+originalpath = C:\Users\andre\Downloads\femmes.txt
+encoding = utf-8
+corpus_name = mitterand
+pathout = C:\Users\andre\Downloads\femmes_corpus_8\mitterand_1
+meta = ['*loc_mitterand']
+uuid = 20d34fd2-99d8-400d-a818-39f7c4880585
+ira = C:\Users\andre\Downloads\femmes_corpus_8\mitterand_1\Corpus.cira
+date = Sun May 18 21:14:16 2025
+time = 0h 0m 0s
+ucinb = 1
+ucenb = 139
+occurrences = 4827
+formesnb = 1327
+hapax = 834 - 62.85 % des formes - 17.28 % des occurrences
