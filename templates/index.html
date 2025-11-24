@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AMU Data Science - Assistant IA</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            display: block;
+        }
+
+        .stat-label {
+            color: #6c757d;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .main-content {
+            display: flex;
+            height: 600px;
+        }
+
+        .tabs {
+            width: 200px;
+            background: #f8f9fa;
+            border-right: 2px solid #e9ecef;
+        }
+
+        .tab {
+            padding: 20px;
+            cursor: pointer;
+            border-left: 4px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab:hover {
+            background: white;
+            border-left-color: #667eea;
+        }
+
+        .tab.active {
+            background: white;
+            border-left-color: #667eea;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Chat Styles */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .message {
+            margin-bottom: 20px;
+        }
+
+        .message-label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #495057;
+        }
+
+        .message-content {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            line-height: 1.8;
+        }
+
+        .message-user .message-content {
+            background: #e7f3ff;
+            border-left-color: #0066cc;
+        }
+
+        /* Styles pour le texte formaté */
+        .message-content h1,
+        .message-content h2,
+        .message-content h3,
+        .message-content h4 {
+            color: #667eea;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .message-content h1 { font-size: 1.5em; }
+        .message-content h2 { font-size: 1.3em; }
+        .message-content h3 { font-size: 1.2em; }
+        .message-content h4 { font-size: 1.1em; }
+
+        .message-content p {
+            margin-bottom: 12px;
+            line-height: 1.8;
+        }
+
+        .message-content ul,
+        .message-content ol {
+            margin-left: 25px;
+            margin-bottom: 15px;
+        }
+
+        .message-content li {
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+
+        .message-content strong {
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .message-content em {
+            font-style: italic;
+            color: #6c757d;
+        }
+
+        .sources {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .sources-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #495057;
+        }
+
+        .source-item {
+            padding: 12px;
+            margin-bottom: 8px;
+            background: white;
+            border-radius: 6px;
+            border-left: 3px solid #667eea;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .source-item:hover {
+            background: #f8f9fa;
+            border-left-width: 5px;
+            transform: translateX(5px);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+        }
+
+        .source-title {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .source-meta {
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-top: 4px;
+        }
+
+        .source-click-hint {
+            font-size: 0.8em;
+            color: #667eea;
+            margin-top: 5px;
+        }
+
+        .source-download-link {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 6px 12px;
+            background: #667eea;
+            color: white;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 0.85em;
+            transition: all 0.3s ease;
+        }
+
+        .source-download-link:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        /* Course Details Modal */
+        .course-details {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+
+        .course-details h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+
+        .course-details h4 {
+            color: #495057;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .course-content-preview {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .course-content-preview p {
+            line-height: 1.6;
+        }
+
+        .chat-input {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1em;
+        }
+
+        .chat-input input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 0.9em;
+            margin-left: 10px;
+        }
+
+        /* Upload Styles */
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover {
+            background: #f8f9fa;
+            border-color: #764ba2;
+        }
+
+        .upload-area.dragover {
+            background: #e7f3ff;
+            border-color: #0066cc;
+        }
+
+        .upload-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .result-area {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .result-area.show {
+            display: block;
+        }
+
+        /* QR Code Styles */
+        .qr-container {
+            text-align: center;
+            padding: 30px;
+        }
+
+        .qr-code {
+            max-width: 300px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .qr-code img {
+            width: 100%;
+            height: auto;
+        }
+
+        .qr-info {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e7f3ff;
+            border-radius: 10px;
+            font-size: 0.9em;
+        }
+
+        .qr-error {
+            color: #dc3545;
+            padding: 20px;
+            background: #f8d7da;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        /* Courses List */
+        .courses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .course-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .course-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .course-title {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .course-meta {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+
+        .badge-level {
+            background: #667eea;
+            color: white;
+        }
+
+        .badge-category {
+            background: #f8f9fa;
+            color: #495057;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+                height: auto;
+            }
+
+            .tabs {
+                width: 100%;
+                display: flex;
+                overflow-x: auto;
+            }
+
+            .tab {
+                flex: 1;
+                text-align: center;
+            }
+
+            .stats {
+                flex-direction: column;
+            }
+
+            .courses-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🎓 AMU Data Science - Assistant IA</h1>
+            <p>Posez vos questions sur vos cours avec Gemini AI</p>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats">
+            <div class="stat-item">
+                <span class="stat-number" id="coursesCount">161</span>
+                <span class="stat-label">Cours Indexés</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" id="chunksCount">2834</span>
+                <span class="stat-label">Chunks de Texte</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" id="geminiStatus">✅</span>
+                <span class="stat-label">Gemini Actif</span>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Tabs -->
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('chat')">💬 Chat</div>
+                <div class="tab" onclick="switchTab('upload')">📤 Upload</div>
+                <div class="tab" onclick="switchTab('courses')">📚 Cours</div>
+                <div class="tab" onclick="switchTab('mobile')">📱 Mobile</div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="content-area">
+                <!-- Chat Tab -->
+                <div id="chat" class="tab-content active">
+                    <div class="chat-container">
+                        <div class="chat-messages" id="chatMessages">
+                            <div class="message">
+                                <div class="message-label">Assistant IA :</div>
+                                <div class="message-content">Bonjour ! Je suis votre assistant Data Science. Posez-moi des questions sur vos cours (Machine Learning, Deep Learning, Statistiques, Python, etc.) 🚀</div>
+                            </div>
+                        </div>
+                        <div class="chat-input">
+                            <input 
+                                type="text" 
+                                id="questionInput" 
+                                placeholder="Posez votre question ici..."
+                                onkeypress="if(event.key === 'Enter') askQuestion()"
+                            >
+                            <button class="btn" id="askButton" onclick="askQuestion()">Envoyer</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Upload Tab -->
+                <div id="upload" class="tab-content">
+                    <h2>📤 Upload et Analyse de Document</h2>
+                    <p style="margin: 20px 0; color: #6c757d;">
+                        Uploadez un PDF, image ou document et obtenez une explication détaillée avec références aux cours AMU.
+                    </p>
+                    
+                    <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+                        <div class="upload-icon">📄</div>
+                        <h3>Cliquez ou glissez un fichier ici</h3>
+                        <p style="color: #6c757d; margin-top: 10px;">PDF, PNG, JPG, DOCX (max 50MB)</p>
+                    </div>
+                    
+                    <input type="file" id="fileInput" class="file-input" accept=".pdf,.png,.jpg,.jpeg,.docx" onchange="uploadFile()">
+                    
+                    <div id="uploadResult" class="result-area"></div>
+                </div>
+
+                <!-- Courses Tab -->
+                <div id="courses" class="tab-content">
+                    <h2>📚 Cours Disponibles</h2>
+                    <p style="margin: 20px 0; color: #6c757d;">
+                        Explorez les cours indexés dans la base de connaissances AMU.
+                    </p>
+                    
+                    <div class="courses-grid" id="coursesGrid">
+                        <p style="text-align: center; padding: 40px; color: #6c757d;">
+                            Chargement des cours...
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Mobile Tab -->
+                <div id="mobile" class="tab-content">
+                    <div class="qr-container">
+                        <h2>📱 Accès Mobile</h2>
+                        <p style="color: #6c757d; margin: 20px 0;">
+                            Scannez ce QR code avec votre téléphone pour accéder à l'application mobile.
+                        </p>
+                        
+                        <div class="qr-code">
+                            <img id="qrCode" src="" alt="QR Code de session" style="display: none;">
+                            <div id="qrLoading" style="padding: 50px; color: #6c757d;">
+                                Génération du QR code...
+                            </div>
+                        </div>
+                        
+                        <div class="qr-info" id="qrInfo" style="display: none;">
+                            <strong>Session ID:</strong> <span id="sessionId">-</span><br>
+                            <strong>URL:</strong> <span id="sessionUrl">-</span>
+                        </div>
+
+                        <div id="qrError" class="qr-error" style="display: none;">
+                            Erreur lors de la génération du QR code. Veuillez rafraîchir la page.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Switch between tabs
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            if (tabName === 'courses') {
+                loadCourses();
+            }
+        }
+
+        // Generate QR Code on load
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const response = await fetch('/mobile/create-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        user_id: 'web_user_' + Date.now(),
+                        device_info: {
+                            userAgent: navigator.userAgent,
+                            platform: navigator.platform
+                        }
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success && data.qr_code_url) {
+                    document.getElementById('qrCode').src = data.qr_code_url;
+                    document.getElementById('qrCode').style.display = 'block';
+                    document.getElementById('qrLoading').style.display = 'none';
+                    
+                    document.getElementById('sessionId').textContent = data.session_id;
+                    document.getElementById('sessionUrl').textContent = data.join_url;
+                    document.getElementById('qrInfo').style.display = 'block';
+                } else {
+                    throw new Error(data.error || 'Erreur inconnue');
+                }
+            } catch (error) {
+                console.error('Erreur génération QR:', error);
+                document.getElementById('qrLoading').style.display = 'none';
+                document.getElementById('qrError').style.display = 'block';
+                document.getElementById('qrError').textContent = 'Erreur : ' + error.message;
+            }
+        });
+
+        // Fonction pour nettoyer le texte Markdown
+        function cleanMarkdown(text) {
+            return text
+                .replace(/#{1,6}\s/g, '')  // Enlever les # des titres
+                .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')  // ** en gras
+                .replace(/\*(.+?)\*/g, '<em>$1</em>')  // * en italique
+                .replace(/\n\n/g, '</p><p>')  // Paragraphes
+                .replace(/\n/g, '<br>')  // Retours à la ligne
+                .replace(/^(.+)$/gm, '<p>$1</p>');  // Entourer de <p>
+        }
+
+        // Ask Question
+        async function askQuestion() {
+            const input = document.getElementById('questionInput');
+            const button = document.getElementById('askButton');
+            const question = input.value.trim();
+
+            if (!question) return;
+
+            button.disabled = true;
+            button.innerHTML = '<span class="loading"></span>';
+
+            addMessage('user', question);
+            input.value = '';
+
+            try {
+                const response = await fetch('/api/ask', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        question: question,
+                        include_sources: true
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    addMessage('assistant', data.answer, data.sources);
+                } else {
+                    addMessage('assistant', '❌ Erreur : ' + (data.error || 'Erreur inconnue'));
+                }
+            } catch (error) {
+                addMessage('assistant', '❌ Erreur de connexion : ' + error.message);
+            } finally {
+                button.disabled = false;
+                button.innerHTML = 'Envoyer';
+            }
+        }
+
+        // Add Message to Chat
+        function addMessage(type, content, sources = null) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message message-' + type;
+
+            let label = type === 'user' ? 'Vous :' : 'Assistant IA :';
+            
+            // Nettoyer le Markdown
+            let formattedContent = type === 'assistant' ? cleanMarkdown(content) : escapeHtml(content);
+            
+            let html = `
+                <div class="message-label">${label}</div>
+                <div class="message-content">${formattedContent}</div>
+            `;
+
+            if (sources && sources.length > 0) {
+                html += '<div class="sources"><div class="sources-title">📚 Sources utilisées :</div>';
+                sources.forEach(source => {
+                    const relevance = isNaN(source.similarity) ? 0 : Math.round(source.similarity * 100);
+                    
+                    html += `
+                        <div class="source-item" onclick="viewCourse('${source.doc_id}')">
+                            <div class="source-title">${escapeHtml(source.title)}</div>
+                            <div class="source-meta">
+                                ${source.level}/${source.category} - Pertinence: ${relevance}%
+                            </div>
+                            <a href="/api/courses/${source.doc_id}/download" 
+                               class="source-download-link" 
+                               onclick="event.stopPropagation()">
+                                📥 Télécharger le PDF
+                            </a>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            }
+
+            messageDiv.innerHTML = html;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        // View Course Details
+        async function viewCourse(docId) {
+            try {
+                const response = await fetch(`/api/courses/${docId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const course = data.course;
+                    
+                    let courseHtml = `
+                        <div class="course-details">
+                            <h3>📚 ${escapeHtml(course.title)}</h3>
+                            
+                            <div class="course-meta">
+                                <span class="badge badge-level">${course.level}</span>
+                                <span class="badge badge-category">${course.category}</span>
+                                <a href="/api/courses/${docId}/download" 
+                                   class="btn btn-small" 
+                                   target="_blank">
+                                    📥 Télécharger le PDF
+                                </a>
+                            </div>
+                            
+                            <p><strong>Pages :</strong> ${course.page_count}</p>
+                            <p><strong>Difficulté :</strong> ${course.difficulty || 'Non spécifiée'}</p>
+                            <p><strong>Durée estimée :</strong> ${course.estimated_duration_min || 'N/A'} min</p>
+                            
+                            ${course.keywords.length > 0 ? `
+                                <p><strong>Mots-clés :</strong> ${course.keywords.join(', ')}</p>
+                            ` : ''}
+                            
+                            <h4>Aperçu du contenu :</h4>
+                    `;
+                    
+                    course.content_preview.forEach((chunk, i) => {
+                        courseHtml += `
+                            <div class="course-content-preview">
+                                <p style="font-size: 0.9em; color: #6c757d; margin-bottom: 8px;">
+                                    <strong>Page ${chunk.page}</strong>
+                                </p>
+                                <p>${escapeHtml(chunk.content)}</p>
+                            </div>
+                        `;
+                    });
+                    
+                    courseHtml += `
+                            <p style="margin-top: 15px; font-size: 0.9em; color: #6c757d;">
+                                <em>Fichier : ${course.filename}</em>
+                            </p>
+                        </div>
+                    `;
+                    
+                    const messagesDiv = document.getElementById('chatMessages');
+                    const messageDiv = document.createElement('div');
+                    messageDiv.className = 'message message-assistant';
+                    messageDiv.innerHTML = `
+                        <div class="message-label">📚 Détails du Cours :</div>
+                        <div class="message-content">${courseHtml}</div>
+                    `;
+                    messagesDiv.appendChild(messageDiv);
+                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                    
+                } else {
+                    alert('Erreur : ' + data.error);
+                }
+            } catch (error) {
+                alert('Erreur : ' + error.message);
+            }
+        }
+
+        // Upload File
+        async function uploadFile() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            
+            if (!file) return;
+
+            const resultDiv = document.getElementById('uploadResult');
+            resultDiv.innerHTML = '<p>⏳ Upload et analyse en cours...</p>';
+            resultDiv.classList.add('show');
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch('/api/upload-and-explain', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    let explanationHtml = cleanMarkdown(data.explanation);
+
+                    let html = `
+                        <h3>✅ Analyse terminée</h3>
+                        <p><strong>Fichier:</strong> ${escapeHtml(data.filename)}</p>
+                        <p><strong>Mots-clés:</strong> ${escapeHtml(data.keywords)}</p>
+                        <h4>Résumé:</h4>
+                        <p>${escapeHtml(data.summary)}</p>
+                        <h4>Explication détaillée:</h4>
+                        <div>${explanationHtml}</div>
+                    `;
+
+                    if (data.relevant_courses && data.relevant_courses.length > 0) {
+                        html += '<h4>Cours pertinents:</h4>';
+                        data.relevant_courses.forEach(course => {
+                            html += `
+                                <div class="source-item" onclick="viewCourse('${course.doc_id}')">
+                                    <div class="source-title">${escapeHtml(course.title)}</div>
+                                    <div class="source-meta">
+                                        ${course.level}/${course.category} - Pertinence: ${course.relevance}%
+                                    </div>
+                                    <a href="/api/courses/${course.doc_id}/download" 
+                                       class="source-download-link" 
+                                       onclick="event.stopPropagation()">
+                                        📥 Télécharger le PDF
+                                    </a>
+                                </div>
+                            `;
+                        });
+                    }
+
+                    resultDiv.innerHTML = html;
+                } else {
+                    resultDiv.innerHTML = `<p>❌ Erreur: ${data.error}</p>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<p>❌ Erreur: ${error.message}</p>`;
+            }
+        }
+
+        // Load Courses
+        async function loadCourses() {
+            const grid = document.getElementById('coursesGrid');
+            
+            try {
+                const response = await fetch('/api/courses');
+                const data = await response.json();
+
+                if (data.success && data.courses.length > 0) {
+                    grid.innerHTML = '';
+                    data.courses.forEach(course => {
+                        const card = document.createElement('div');
+                        card.className = 'course-card';
+                        card.onclick = () => viewCourse(course.doc_id);
+                        card.innerHTML = `
+                            <div class="course-title">${escapeHtml(course.title)}</div>
+                            <div class="course-meta">
+                                <span class="badge badge-level">${course.level}</span>
+                                <span class="badge badge-category">${course.category}</span>
+                            </div>
+                            <p style="font-size: 0.9em; color: #6c757d;">
+                                ${course.page_count} pages
+                            </p>
+                        `;
+                        grid.appendChild(card);
+                    });
+                } else {
+                    grid.innerHTML = '<p style="text-align: center; padding: 40px; color: #6c757d;">Aucun cours trouvé</p>';
+                }
+            } catch (error) {
+                grid.innerHTML = `<p style="text-align: center; padding: 40px; color: #dc3545;">Erreur: ${error.message}</p>`;
+            }
+        }
+
+        // Drag and Drop for Upload
+        const uploadArea = document.getElementById('uploadArea');
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                document.getElementById('fileInput').files = files;
+                uploadFile();
+            }
+        });
+
+        // Escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
