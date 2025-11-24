@@ -32,7 +32,7 @@ def init_database(db_path='database/amu_courses.db', schema_path='database/schem
     conn.commit()
     conn.close()
     
-    print(f"✅ Base de données initialisée : {db_path}")
+    print(f"Base de données initialisée : {db_path}")
 
 def load_sample_data(db_path='database/amu_courses.db'):
     """
@@ -48,7 +48,7 @@ def load_sample_data(db_path='database/amu_courses.db'):
     
     # Charger M1 et M2
     for json_file in sample_data_dir.glob('*.json'):
-        print(f"📥 Chargement de {json_file.name}...")
+        print(f"Chargement de {json_file.name}...")
         
         with open(json_file, 'r', encoding='utf-8') as f:
             data = json.load(f)
@@ -114,18 +114,18 @@ def load_sample_data(db_path='database/amu_courses.db'):
                         quizzes_loaded += 1
             
             except Exception as e:
-                print(f"⚠️  Erreur lors du chargement de {course['course_id']}: {e}")
+                print(f"Erreur lors du chargement de {course['course_id']}: {e}")
         
-        print(f"   ✅ {courses_loaded} cours, {chapters_loaded} chapitres, {quizzes_loaded} quiz")
+        print(f"   {courses_loaded} cours, {chapters_loaded} chapitres, {quizzes_loaded} quiz")
     
     conn.commit()
     conn.close()
     
-    print("✅ Données d'exemple chargées")
+    print("Données d'exemple chargées")
 
 if __name__ == '__main__':
     print("="*70)
-    print("🗄️  INITIALISATION DE LA BASE DE DONNÉES AMU")
+    print("INITIALISATION DE LA BASE DE DONNÉES AMU")
     print("="*70)
     
     # Initialiser le schéma
@@ -136,5 +136,5 @@ if __name__ == '__main__':
         load_sample_data()
     
     print("="*70)
-    print("✅ Initialisation terminée !")
+    print("Initialisation terminée !")
     print("="*70)
