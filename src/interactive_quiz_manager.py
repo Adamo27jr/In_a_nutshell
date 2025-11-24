@@ -1,187 +1,307 @@
-import streamlit as st
-from typing import List, Dict
+"""
+Gestionnaire de quiz interactifs pour Flask.
+"""
+
+from typing import List, Dict, Optional
+import random
+import json
+from datetime import datetime
+import uuid
 
 
-class QuizManager:
+class InteractiveQuizManager:
     """Gestionnaire de quiz interactifs"""
     
     def __init__(self):
         """Initialise le gestionnaire de quiz"""
-        pass
+        self.quizzes = {}
+        self.user_responses = {}
+        self.quiz_sessions = {}
     
-    def render_quiz(self, questions: List[Dict]):
+    def create_quiz(
+        self,
+        quiz_id: str,
+        questions: List[Dict],
+        title: str = "Quiz",
+        shuffle: bool = True
+    ) -> Dict:
         """
-        Affiche un quiz interactif complet
+        Crée un nouveau quiz.
         
         Args:
+            quiz_id: Identifiant unique du quiz
             questions: Liste de questions avec options et réponses
+            title: Titre du quiz
+            shuffle: Mélanger les questions
+            
+        Returns:
+            Métadonnées du quiz créé
         """
-        # Initialisation du state si nécessaire
-        if 'quiz_state' not in st.session_state:
-            st.session_state.quiz_state = {
-                'current': 0,
-                'score': 0,
-                'answers': [],
-                'active': False
-            }
+        if shuffle:
+            questions = random.sample(questions, len(questions))
         
-        # Affichage selon l'état
-        if not st.session_state.quiz_state['active']:
-            self._render_start_screen(questions)
-        else:
-            current_idx = st.session_state.quiz_state['current']
+        quiz_data = {
+            'quiz_id': quiz_id,
+            'title': title,
+            'questions': questions,
+            'created_at': datetime.now().isoformat(),
+            'total_questions': len(questions)
+        }
+        
+        self.quizzes[quiz_id] = quiz_data
+        return quiz_data
+    
+    def get_quiz(self, quiz_id: str) -> Optional[Dict]:
+        """
+        Récupère un quiz par son ID.
+        
+        Args:
+            quiz_id: Identifiant du quiz
             
-            if current_idx >= len(questions):
-                self._render_results(questions)
-            else:
-                self._render_question(questions, current_idx)
+        Returns:
+            Données du quiz ou None
+        """
+        return self.quizzes.get(quiz_id)
     
-    def _render_start_screen(self, questions: List[Dict]):
-        """Écran de démarrage du quiz"""
-        st.markdown("###  Quiz Interactif")
-        st.write(f"**{len(questions)} questions** pour tester ta compréhension du podcast")
+    def start_quiz_session(self, quiz_id: str, user_id: str = "anonymous") -> str:
+        """
+        Démarre une nouvelle session de quiz.
         
-        # Aperçu
-        with st.expander(" Aperçu des questions"):
-            for i, q in enumerate(questions, 1):
-                st.write(f"{i}. {q['question'][:60]}...")
-        
-        # Bouton de démarrage
-        if st.button(" Commencer le Quiz", use_container_width=True, type="primary"):
-            st.session_state.quiz_state['active'] = True
-            st.session_state.quiz_state['current'] = 0
-            st.session_state.quiz_state['score'] = 0
-            st.session_state.quiz_state['answers'] = []
-            st.rerun()
-    
-    def _render_question(self, questions: List[Dict], idx: int):
-        """Affiche une question avec ses options"""
-        question = questions[idx]
-        
-        # Barre de progression
-        progress = (idx + 1) / len(questions)
-        st.progress(progress)
-        st.caption(f"Question {idx + 1} sur {len(questions)}")
-        
-        # Question
-        st.markdown(f"###  {question['question']}")
-        
-        # Espacement
-        st.write("")
-        
-        # Options (boutons)
-        options = question.get('options', [])
-        
-        # Variable pour stocker la réponse sélectionnée
-        if f'selected_answer_{idx}' not in st.session_state:
-            st.session_state[f'selected_answer_{idx}'] = None
-        
-        # Affichage des options
-        for i, option in enumerate(options):
-            button_label = f"{chr(65+i)}. {option}"
+        Args:
+            quiz_id: ID du quiz
+            user_id: ID de l'utilisateur
             
-            if st.button(
-                button_label, 
-                key=f"quiz_{idx}_option_{i}",
-                use_container_width=True
-            ):
-                st.session_state[f'selected_answer_{idx}'] = option
-                
-                # Vérification
-                is_correct = option == question['correct_answer']
-                
-                # Feedback immédiat
-                if is_correct:
-                    st.success(" Correct !")
-                    st.session_state.quiz_state['score'] += 1
-                else:
-                    st.error(f" Incorrect. La bonne réponse était : **{question['correct_answer']}**")
-                
-                # Explication
-                if question.get('explanation'):
-                    st.info(f" **Explication :** {question['explanation']}")
-                
-                # Sauvegarder la réponse
-                st.session_state.quiz_state['answers'].append({
-                    'question': question['question'],
-                    'user_answer': option,
-                    'correct_answer': question['correct_answer'],
-                    'is_correct': is_correct
-                })
-                
-                # Bouton suivant
-                st.write("")
-                if st.button(" Question suivante", type="primary", use_container_width=True):
-                    st.session_state.quiz_state['current'] += 1
-                    st.rerun()
+        Returns:
+            session_id: ID de la session créée
+        """
+        session_id = str(uuid.uuid4())
+        
+        self.quiz_sessions[session_id] = {
+            'session_id': session_id,
+            'quiz_id': quiz_id,
+            'user_id': user_id,
+            'current_question': 0,
+            'score': 0,
+            'answers': [],
+            'started_at': datetime.now().isoformat(),
+            'completed': False
+        }
+        
+        return session_id
     
-    def _render_results(self, questions: List[Dict]):
-        """Affiche les résultats finaux du quiz"""
-        score = st.session_state.quiz_state['score']
-        total = len(questions)
-        percentage = (score / total) * 100 if total > 0 else 0
+    def submit_answer(
+        self,
+        session_id: str,
+        question_index: int,
+        user_answer: str
+    ) -> Dict:
+        """
+        Soumet une réponse à une question.
         
-        # Titre
-        st.markdown("##  Quiz Terminé !")
+        Args:
+            session_id: ID de la session
+            question_index: Index de la question
+            user_answer: Réponse de l'utilisateur
+            
+        Returns:
+            Résultat de l'évaluation
+        """
+        session = self.quiz_sessions.get(session_id)
+        if not session:
+            return {'error': 'Session non trouvée'}
         
-        # Métriques principales
-        col1, col2, col3 = st.columns(3)
+        quiz = self.quizzes.get(session['quiz_id'])
+        if not quiz:
+            return {'error': 'Quiz non trouvé'}
         
-        with col1:
-            st.metric("Score", f"{score}/{total}")
+        if question_index >= len(quiz['questions']):
+            return {'error': 'Question invalide'}
         
-        with col2:
-            st.metric("Pourcentage", f"{percentage:.0f}%")
+        question = quiz['questions'][question_index]
+        correct_answer = question.get('correct_answer', '')
         
-        with col3:
-            # Badge selon le score
-            if percentage >= 80:
-                st.metric("Niveau", " Expert")
-            elif percentage >= 60:
-                st.metric("Niveau", " Bien")
-            else:
-                st.metric("Niveau", " À réviser")
+        # Vérifier la réponse
+        is_correct = user_answer.strip().lower() == correct_answer.strip().lower()
         
-        # Message selon le score
-        st.write("")
+        # Mettre à jour le score
+        if is_correct:
+            session['score'] += 1
+        
+        # Enregistrer la réponse
+        answer_record = {
+            'question': question['question'],
+            'user_answer': user_answer,
+            'correct_answer': correct_answer,
+            'is_correct': is_correct,
+            'timestamp': datetime.now().isoformat()
+        }
+        
+        session['answers'].append(answer_record)
+        session['current_question'] = question_index + 1
+        
+        return {
+            'is_correct': is_correct,
+            'correct_answer': correct_answer,
+            'explanation': question.get('explanation', ''),
+            'current_score': session['score'],
+            'total_questions': len(quiz['questions']),
+            'next_question': question_index + 1 if question_index + 1 < len(quiz['questions']) else None
+        }
+    
+    def get_session_state(self, session_id: str) -> Optional[Dict]:
+        """
+        Récupère l'état d'une session.
+        
+        Args:
+            session_id: ID de la session
+            
+        Returns:
+            État de la session
+        """
+        return self.quiz_sessions.get(session_id)
+    
+    def complete_quiz(self, session_id: str) -> Dict:
+        """
+        Marque un quiz comme terminé et calcule les résultats.
+        
+        Args:
+            session_id: ID de la session
+            
+        Returns:
+            Résultats finaux
+        """
+        session = self.quiz_sessions.get(session_id)
+        if not session:
+            return {'error': 'Session non trouvée'}
+        
+        quiz = self.quizzes.get(session['quiz_id'])
+        if not quiz:
+            return {'error': 'Quiz non trouvé'}
+        
+        total_questions = len(quiz['questions'])
+        score = session['score']
+        percentage = (score / total_questions * 100) if total_questions > 0 else 0
+        
+        # Déterminer le niveau
         if percentage >= 80:
-            st.success(" **Excellent !** Tu maîtrises parfaitement le sujet.")
+            level = "Expert"
+            message = "Excellent ! Tu maîtrises parfaitement le sujet."
         elif percentage >= 60:
-            st.info(" **Bien joué !** Continue comme ça, tu es sur la bonne voie.")
+            level = "Bien"
+            message = "Bien joué ! Continue comme ça, tu es sur la bonne voie."
         else:
-            st.warning(" **Continue à réviser.** Réécoute le podcast et réessaye !")
+            level = "À réviser"
+            message = "Continue à réviser. Réécoute le podcast et réessaye !"
         
-        # Détails des réponses
-        st.write("")
-        with st.expander("Détails de tes réponses"):
-            for i, answer in enumerate(st.session_state.quiz_state['answers'], 1):
-                if answer['is_correct']:
-                    st.success(f"**Question {i} :**  {answer['question'][:60]}...")
-                else:
-                    st.error(f"**Question {i} :**  {answer['question'][:60]}...")
-                    st.caption(f"Ta réponse : {answer['user_answer']} | Correct : {answer['correct_answer']}")
+        session['completed'] = True
+        session['completed_at'] = datetime.now().isoformat()
         
-        # Actions
-        st.write("")
-        col1, col2 = st.columns(2)
+        return {
+            'session_id': session_id,
+            'quiz_id': session['quiz_id'],
+            'score': score,
+            'total_questions': total_questions,
+            'percentage': round(percentage, 2),
+            'level': level,
+            'message': message,
+            'answers': session['answers'],
+            'passed': percentage >= 60
+        }
+    
+    def get_quiz_results(self, session_id: str) -> Dict:
+        """
+        Récupère les résultats d'un quiz terminé.
         
-        with col1:
-            if st.button("Refaire le quiz", use_container_width=True):
-                st.session_state.quiz_state = {
-                    'current': 0,
-                    'score': 0,
-                    'answers': [],
-                    'active': False
-                }
-                st.rerun()
+        Args:
+            session_id: ID de la session
+            
+        Returns:
+            Résultats détaillés
+        """
+        session = self.quiz_sessions.get(session_id)
+        if not session:
+            return {'error': 'Session non trouvée'}
         
-        with col2:
-            if st.button("Retour à l'accueil", use_container_width=True):
-                st.session_state.quiz_state = {
-                    'current': 0,
-                    'score': 0,
-                    'answers': [],
-                    'active': False
-                }
-                # Retour au tab principal
-                st.rerun()
+        if not session.get('completed'):
+            return self.complete_quiz(session_id)
+        
+        quiz = self.quizzes.get(session['quiz_id'])
+        total_questions = len(quiz['questions']) if quiz else 0
+        score = session['score']
+        percentage = (score / total_questions * 100) if total_questions > 0 else 0
+        
+        return {
+            'session_id': session_id,
+            'quiz_id': session['quiz_id'],
+            'score': score,
+            'total_questions': total_questions,
+            'percentage': round(percentage, 2),
+            'answers': session['answers'],
+            'passed': percentage >= 60
+        }
+    
+    def generate_sample_quiz(self) -> str:
+        """
+        Génère un quiz d'exemple pour tester.
+        
+        Returns:
+            quiz_id: ID du quiz créé
+        """
+        quiz_id = f"sample_quiz_{uuid.uuid4().hex[:8]}"
+        
+        questions = [
+            {
+                'question': "Qu'est-ce que le Machine Learning ?",
+                'question_type': 'multiple_choice',
+                'options': [
+                    "Un type de base de données",
+                    "Une méthode pour faire apprendre des modèles à partir de données",
+                    "Un langage de programmation",
+                    "Un système d'exploitation"
+                ],
+                'correct_answer': "Une méthode pour faire apprendre des modèles à partir de données",
+                'explanation': "Le Machine Learning est une branche de l'IA qui permet aux systèmes d'apprendre à partir de données sans être explicitement programmés.",
+                'difficulty': 'beginner'
+            },
+            {
+                'question': "Quel est le langage le plus utilisé en Data Science ?",
+                'question_type': 'multiple_choice',
+                'options': ["Java", "Python", "C++", "Ruby"],
+                'correct_answer': "Python",
+                'explanation': "Python est le langage le plus populaire en Data Science grâce à ses bibliothèques comme NumPy, Pandas, et Scikit-learn.",
+                'difficulty': 'beginner'
+            },
+            {
+                'question': "Que signifie CNN en Deep Learning ?",
+                'question_type': 'multiple_choice',
+                'options': [
+                    "Computer Neural Network",
+                    "Convolutional Neural Network",
+                    "Complex Number Network",
+                    "Centralized Neural Network"
+                ],
+                'correct_answer': "Convolutional Neural Network",
+                'explanation': "CNN (Convolutional Neural Network) est un type de réseau de neurones spécialement conçu pour traiter des images.",
+                'difficulty': 'intermediate'
+            }
+        ]
+        
+        self.create_quiz(quiz_id, questions, title="Quiz de Démonstration Data Science")
+        return quiz_id
+    
+    def get_all_quizzes(self) -> List[Dict]:
+        """
+        Récupère tous les quiz disponibles.
+        
+        Returns:
+            Liste des quiz
+        """
+        return [
+            {
+                'quiz_id': quiz_id,
+                'title': quiz_data['title'],
+                'total_questions': quiz_data['total_questions'],
+                'created_at': quiz_data['created_at']
+            }
+            for quiz_id, quiz_data in self.quizzes.items()
+        ]
