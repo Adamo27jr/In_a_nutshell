@@ -52,7 +52,7 @@ class UniversalDocumentProcessor:
         Returns:
             Dict avec métadonnées et contenu extrait
         """
-        print(f"📄 Traitement du PDF: {pdf_path}")
+        print(f"Traitement du PDF: {pdf_path}")
         
         doc = fitz.open(pdf_path)
         
@@ -103,7 +103,7 @@ class UniversalDocumentProcessor:
         Returns:
             Dict avec type détecté et contenu extrait
         """
-        print(f"🖼️ Traitement de l'image: {image_path}")
+        print(f"Traitement de l'image: {image_path}")
         
         image = Image.open(image_path)
         
