@@ -95,7 +95,7 @@ class CourseIndexer:
             level_path = self.course_path / level
             
             if not level_path.exists():
-                print(f"⚠️  Dossier {level} introuvable")
+                print(f"Dossier {level} introuvable")
                 continue
             
             # Parcourir les catégories
@@ -104,7 +104,7 @@ class CourseIndexer:
                     continue
                 
                 category = category_path.name
-                print(f"\n📂 Catégorie : {level.upper()}/{category}")
+                print(f"\nCatégorie : {level.upper()}/{category}")
                 
                 # Indexer tous les PDFs de cette catégorie
                 for pdf_file in category_path.glob('**/*.pdf'):
@@ -119,16 +119,16 @@ class CourseIndexer:
                         
                         if result == 'new':
                             stats['new_indexed'] += 1
-                            print(f"  ✅ Indexé : {pdf_file.name}")
+                            print(f"Indexé : {pdf_file.name}")
                         elif result == 'updated':
                             stats['updated'] += 1
-                            print(f"  🔄 Mis à jour : {pdf_file.name}")
+                            print(f"Mis à jour : {pdf_file.name}")
                         else:
-                            print(f"  ⏭️  Déjà à jour : {pdf_file.name}")
+                            print(f"Déjà à jour : {pdf_file.name}")
                             
                     except Exception as e:
                         stats['errors'] += 1
-                        print(f"  ❌ Erreur avec {pdf_file.name}: {e}")
+                        print(f"Erreur avec {pdf_file.name}: {e}")
         
         return stats
     
