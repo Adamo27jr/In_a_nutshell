@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AMU Data Science - Session Mobile</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: white;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 1.8em;
+            margin-bottom: 5px;
+        }
+
+        .session-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+        }
+
+        .session-info p {
+            margin-bottom: 5px;
+        }
+
+        .status {
+            background: rgba(76, 175, 80, 0.3);
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+        }
+
+        .tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 5px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+            font-size: 0.9em;
+        }
+
+        .tab.active {
+            background: white;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .tab-content {
+            display: none;
+            background: white;
+            color: #333;
+            padding: 20px;
+            border-radius: 15px;
+            min-height: 400px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .scan-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .scan-area:hover {
+            background: #f8f9fa;
+            border-color: #764ba2;
+        }
+
+        .scan-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        #cameraPreview {
+            width: 100%;
+            max-width: 400px;
+            border-radius: 10px;
+            margin: 20px auto;
+            display: none;
+        }
+
+        .result-area {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .result-area.show {
+            display: block;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: bold;
+            margin: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .message {
+            padding: 15px;
+            margin-bottom: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .message-user {
+            background: #e7f3ff;
+            border-left-color: #0066cc;
+        }
+
+        .chat-input {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1em;
+        }
+
+        .quiz-question {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .quiz-option {
+            background: white;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .quiz-option:hover {
+            border-color: #667eea;
+            background: #f8f9fa;
+        }
+
+        .quiz-option.selected {
+            border-color: #667eea;
+            background: #e7f3ff;
+        }
+
+        .quiz-option.correct {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+
+        .quiz-option.incorrect {
+            border-color: #dc3545;
+            background: #f8d7da;
+        }
+
+        .notes-area {
+            width: 100%;
+            min-height: 200px;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1em;
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(102, 126, 234, 0.3);
+            border-radius: 50%;
+            border-top-color: #667eea;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .explanation-result {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            line-height: 1.6;
+        }
+
+        .explanation-result h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .explanation-result p {
+            margin-bottom: 10px;
+        }
+
+        .file-input {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📱 AMU Data Science</h1>
+            <p>Session Mobile</p>
+        </div>
+
+        <div class="session-info">
+            <p><strong>Session:</strong> {{ session.session_id[:8] if session else 'N/A' }}...</p>
+            <p><strong>Utilisateur:</strong> {{ session.user_id if session else 'Anonyme' }}</p>
+        </div>
+
+        <div class="status" id="connectionStatus">
+            <p id="statusText">✅ Connecté</p>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('scan')">📸 Scanner</div>
+            <div class="tab" onclick="switchTab('chat')">💬 Chat</div>
+            <div class="tab" onclick="switchTab('quiz')">🎯 Quiz</div>
+            <div class="tab" onclick="switchTab('notes')">📝 Notes</div>
+        </div>
+
+        <!-- Scanner Tab -->
+        <div id="scan" class="tab-content active">
+            <h2>📸 Scanner & Expliquer</h2>
+            <p style="color: #6c757d; margin-bottom: 20px;">
+                Scannez un graphique, texte ou titre de chapitre pour obtenir une explication détaillée.
+            </p>
+
+            <div class="scan-area" onclick="document.getElementById('imageInput').click()">
+                <div class="scan-icon">📷</div>
+                <h3>Prendre une photo ou choisir une image</h3>
+                <p style="color: #6c757d; margin-top: 10px;">Graphique, texte, formule, diagramme...</p>
+            </div>
+
+            <input type="file" id="imageInput" class="file-input" accept="image/*" capture="environment" onchange="scanImage()">
+
+            <video id="cameraPreview" autoplay playsinline></video>
+
+            <div style="text-align: center; margin-bottom: 15px;">
+                <button class="btn" onclick="startCamera()">📷 Ouvrir la caméra</button>
+                <button class="btn btn-secondary" onclick="stopCamera()" style="display: none;" id="stopCameraBtn">⏹️ Arrêter</button>
+            </div>
+
+            <div id="scanResult" class="result-area"></div>
+        </div>
+
+        <!-- Chat Tab -->
+        <div id="chat" class="tab-content">
+            <h2>💬 Chat en Direct</h2>
+            <p style="color: #6c757d; margin-bottom: 20px;">
+                Posez vos questions à l'assistant IA en temps réel.
+            </p>
+
+            <div id="chatMessages" style="max-height: 300px; overflow-y: auto; margin-bottom: 15px;">
+                <div class="message">
+                    <strong>Assistant IA :</strong>
+                    <p>Bonjour ! Posez-moi vos questions sur vos cours de Data Science 🚀</p>
+                </div>
+            </div>
+
+            <div class="chat-input">
+                <input type="text" id="chatInput" placeholder="Posez votre question..." onkeypress="if(event.key === 'Enter') sendMessage()">
+                <button class="btn" onclick="sendMessage()">Envoyer</button>
+            </div>
+        </div>
+
+        <!-- Quiz Tab -->
+        <div id="quiz" class="tab-content">
+            <h2>🎯 Quiz Interactif</h2>
+            <p style="color: #6c757d; margin-bottom: 20px;">
+                Testez vos connaissances avec des quiz générés automatiquement.
+            </p>
+
+            <div style="text-align: center; margin-bottom: 20px;">
+                <button class="btn" onclick="generateQuiz()">🎲 Générer un Quiz</button>
+            </div>
+
+            <div id="quizContainer"></div>
+        </div>
+
+        <!-- Notes Tab -->
+        <div id="notes" class="tab-content">
+            <h2>📝 Partage de Notes</h2>
+            <p style="color: #6c757d; margin-bottom: 20px;">
+                Prenez des notes synchronisées avec votre session.
+            </p>
+
+            <textarea class="notes-area" id="notesArea" placeholder="Écrivez vos notes ici..."></textarea>
+
+            <div style="margin-top: 15px; text-align: center;">
+                <button class="btn" onclick="saveNotes()">💾 Sauvegarder</button>
+                <button class="btn btn-secondary" onclick="clearNotes()">🗑️ Effacer</button>
+            </div>
+
+            <div id="notesSaved" style="display: none; margin-top: 15px; padding: 10px; background: #d4edda; border-radius: 8px; color: #155724; text-align: center;">
+                ✅ Notes sauvegardées !
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="/" class="btn">🏠 Retour à l'accueil</a>
+        </div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script>
+        // Variables globales
+        const socket = io();
+        const sessionId = '{{ session.session_id if session else "" }}';
+        let cameraStream = null;
+        let currentQuiz = null;
+
+        // Connexion WebSocket
+        socket.on('connect', function() {
+            console.log('✅ Connecté au serveur');
+            document.getElementById('statusText').textContent = '✅ Connecté';
+            
+            if (sessionId) {
+                socket.emit('join_session', { session_id: sessionId });
+            }
+        });
+
+        socket.on('disconnect', function() {
+            console.log('❌ Déconnecté du serveur');
+            document.getElementById('statusText').textContent = '❌ Déconnecté';
+        });
+
+        // Switch entre les tabs
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            // Arrêter la caméra si on quitte l'onglet scan
+            if (tabName !== 'scan') {
+                stopCamera();
+            }
+        }
+
+        // Scanner une image
+        async function scanImage() {
+            const fileInput = document.getElementById('imageInput');
+            const file = fileInput.files[0];
+            
+            if (!file) return;
+
+            const resultDiv = document.getElementById('scanResult');
+            resultDiv.innerHTML = '<p><span class="loading"></span> Analyse en cours...</p>';
+            resultDiv.classList.add('show');
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch('/api/upload-and-explain', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    let html = `
+                        <div class="explanation-result">
+                            <h3>📖 Explication</h3>
+                            <p><strong>Mots-clés :</strong> ${escapeHtml(data.keywords)}</p>
+                            <hr style="margin: 15px 0; border: none; border-top: 1px solid #e9ecef;">
+                            <p>${escapeHtml(data.summary)}</p>
+                            <hr style="margin: 15px 0; border: none; border-top: 1px solid #e9ecef;">
+                            <div>${formatMarkdown(data.explanation)}</div>
+                        </div>
+                    `;
+
+                    if (data.relevant_courses && data.relevant_courses.length > 0) {
+                        html += '<h4 style="margin-top: 20px;">📚 Cours pertinents :</h4>';
+                        data.relevant_courses.forEach(course => {
+                            html += `
+                                <div style="background: white; padding: 10px; margin: 8px 0; border-radius: 8px; border-left: 3px solid #667eea;">
+                                    <strong>${escapeHtml(course.title)}</strong><br>
+                                    <small style="color: #6c757d;">${course.level}/${course.category} - ${course.relevance}%</small>
+                                </div>
+                            `;
+                        });
+                    }
+
+                    resultDiv.innerHTML = html;
+                } else {
+                    resultDiv.innerHTML = `<p style="color: #dc3545;">❌ Erreur: ${data.error}</p>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<p style="color: #dc3545;">❌ Erreur: ${error.message}</p>`;
+            }
+        }
+
+        // Démarrer la caméra
+        async function startCamera() {
+            try {
+                cameraStream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: 'environment' } 
+                });
+                
+                const video = document.getElementById('cameraPreview');
+                video.srcObject = cameraStream;
+                video.style.display = 'block';
+                
+                document.getElementById('stopCameraBtn').style.display = 'inline-block';
+                
+                // Bouton pour capturer
+                const captureBtn = document.createElement('button');
+                captureBtn.className = 'btn';
+                captureBtn.textContent = '📸 Capturer';
+                captureBtn.onclick = captureImage;
+                captureBtn.id = 'captureBtn';
+                
+                const scanArea = document.querySelector('.scan-area');
+                if (!document.getElementById('captureBtn')) {
+                    scanArea.parentNode.insertBefore(captureBtn, scanArea.nextSibling);
+                }
+            } catch (error) {
+                alert('Impossible d\'accéder à la caméra: ' + error.message);
+            }
+        }
+
+        // Arrêter la caméra
+        function stopCamera() {
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(track => track.stop());
+                document.getElementById('cameraPreview').style.display = 'none';
+                document.getElementById('stopCameraBtn').style.display = 'none';
+                
+                const captureBtn = document.getElementById('captureBtn');
+                if (captureBtn) captureBtn.remove();
+            }
+        }
+
+        // Capturer l'image de la caméra
+        function captureImage() {
+            const video = document.getElementById('cameraPreview');
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            
+            canvas.toBlob(async (blob) => {
+                const file = new File([blob], 'capture.jpg', { type: 'image/jpeg' });
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                document.getElementById('imageInput').files = dataTransfer.files;
+                
+                stopCamera();
+                await scanImage();
+            }, 'image/jpeg');
+        }
+
+        // Envoyer un message dans le chat
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+
+            const messagesDiv = document.getElementById('chatMessages');
+            
+            // Ajouter le message de l'utilisateur
+            messagesDiv.innerHTML += `
+                <div class="message message-user">
+                    <strong>Vous :</strong>
+                    <p>${escapeHtml(message)}</p>
+                </div>
+            `;
+            
+            input.value = '';
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+            // Envoyer au serveur
+            try {
+                const response = await fetch('/api/ask', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question: message })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    messagesDiv.innerHTML += `
+                        <div class="message">
+                            <strong>Assistant IA :</strong>
+                            <div>${formatMarkdown(data.answer)}</div>
+                        </div>
+                    `;
+                } else {
+                    messagesDiv.innerHTML += `
+                        <div class="message">
+                            <strong>Assistant IA :</strong>
+                            <p style="color: #dc3545;">❌ Erreur: ${data.error}</p>
+                        </div>
+                    `;
+                }
+                
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            } catch (error) {
+                messagesDiv.innerHTML += `
+                    <div class="message">
+                        <strong>Assistant IA :</strong>
+                        <p style="color: #dc3545;">❌ Erreur de connexion</p>
+                    </div>
+                `;
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            }
+        }
+
+        // Générer un quiz
+        async function generateQuiz() {
+            const container = document.getElementById('quizContainer');
+            container.innerHTML = '<p><span class="loading"></span> Génération du quiz...</p>';
+
+            try {
+                const response = await fetch('/api/quiz/custom', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        topic: 'Data Science',
+                        num_questions: 3
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success && data.quiz) {
+                    currentQuiz = data.quiz;
+                    displayQuiz(data.quiz);
+                } else {
+                    container.innerHTML = '<p style="color: #dc3545;">❌ Impossible de générer le quiz</p>';
+                }
+            } catch (error) {
+                container.innerHTML = '<p style="color: #dc3545;">❌ Erreur: ' + error.message + '</p>';
+            }
+        }
+
+        // Afficher le quiz
+        function displayQuiz(quiz) {
+            const container = document.getElementById('quizContainer');
+            let html = '';
+
+            quiz.forEach((q, index) => {
+                html += `
+                    <div class="quiz-question">
+                        <h3>Question ${index + 1}</h3>
+                        <p style="margin: 15px 0;">${escapeHtml(q.question)}</p>
+                        ${q.options.map((opt, i) => `
+                            <div class="quiz-option" onclick="selectOption(${index}, ${i}, '${escapeHtml(q.correct_answer)}', this)">
+                                ${escapeHtml(opt)}
+                            </div>
+                        `).join('')}
+                        <div id="explanation-${index}" style="display: none; margin-top: 15px; padding: 10px; background: #e7f3ff; border-radius: 8px;">
+                            <strong>Explication :</strong> ${escapeHtml(q.explanation)}
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Sélectionner une option
+        function selectOption(questionIndex, optionIndex, correctAnswer, element) {
+            const question = element.parentElement;
+            const options = question.querySelectorAll('.quiz-option');
+            
+            // Désactiver toutes les options
+            options.forEach(opt => {
+                opt.style.pointerEvents = 'none';
+                if (opt.textContent.trim() === correctAnswer.trim()) {
+                    opt.classList.add('correct');
+                }
+            });
+
+            // Marquer la réponse sélectionnée
+            if (element.textContent.trim() === correctAnswer.trim()) {
+                element.classList.add('correct');
+            } else {
+                element.classList.add('incorrect');
+            }
+
+            // Afficher l'explication
+            document.getElementById(`explanation-${questionIndex}`).style.display = 'block';
+        }
+
+        // Sauvegarder les notes
+        function saveNotes() {
+            const notes = document.getElementById('notesArea').value;
+            localStorage.setItem('amu_mobile_notes_' + sessionId, notes);
+            
+            const savedMsg = document.getElementById('notesSaved');
+            savedMsg.style.display = 'block';
+            setTimeout(() => {
+                savedMsg.style.display = 'none';
+            }, 3000);
+        }
+
+        // Effacer les notes
+        function clearNotes() {
+            if (confirm('Êtes-vous sûr de vouloir effacer vos notes ?')) {
+                document.getElementById('notesArea').value = '';
+                localStorage.removeItem('amu_mobile_notes_' + sessionId);
+            }
+        }
+
+        // Charger les notes au démarrage
+        window.addEventListener('DOMContentLoaded', function() {
+            const savedNotes = localStorage.getItem('amu_mobile_notes_' + sessionId);
+            if (savedNotes) {
+                document.getElementById('notesArea').value = savedNotes;
+            }
+        });
+
+        // Fonctions utilitaires
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function formatMarkdown(text) {
+            return text
+                .replace(/#{1,6}\s/g, '')
+                .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.+?)\*/g, '<em>$1</em>')
+                .replace(/\n\n/g, '</p><p>')
+                .replace(/\n/g, '<br>')
+                .replace(/^(.+)$/gm, '<p>$1</p>');
+        }
+    </script>
+</body>
+</html>
