@@ -153,7 +153,7 @@ class QuizManager:
         
         # Détails des réponses
         st.write("")
-        with st.expander("📊 Détails de tes réponses"):
+        with st.expander("Détails de tes réponses"):
             for i, answer in enumerate(st.session_state.quiz_state['answers'], 1):
                 if answer['is_correct']:
                     st.success(f"**Question {i} :**  {answer['question'][:60]}...")
@@ -166,7 +166,7 @@ class QuizManager:
         col1, col2 = st.columns(2)
         
         with col1:
-            if st.button("🔄 Refaire le quiz", use_container_width=True):
+            if st.button("Refaire le quiz", use_container_width=True):
                 st.session_state.quiz_state = {
                     'current': 0,
                     'score': 0,
@@ -176,7 +176,7 @@ class QuizManager:
                 st.rerun()
         
         with col2:
-            if st.button("🏠 Retour à l'accueil", use_container_width=True):
+            if st.button("Retour à l'accueil", use_container_width=True):
                 st.session_state.quiz_state = {
                     'current': 0,
                     'score': 0,
