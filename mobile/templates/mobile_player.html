@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecteur Mobile - AMU DataScience</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='mobile/css/mobile.css') }}">
+</head>
+<body>
+    <div class="mobile-container">
+        <header class="mobile-header">
+            <h1>🎧 Lecteur Audio</h1>
+            <p class="session-info">Session: {{ session.session_id[:8] }}...</p>
+        </header>
+        
+        <div class="audio-player">
+            <div class="chapter-info">
+                <h2 id="chapter-title">Chargement...</h2>
+                <p id="chapter-duration"></p>
+            </div>
+            
+            <audio id="audio-element" controls>
+                <source id="audio-source" src="" type="audio/mpeg">
+                Votre navigateur ne supporte pas l'audio HTML5.
+            </audio>
+            
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            
+            <div class="time-display">
+                <span id="current-time">0:00</span>
+                <span id="total-time">0:00</span>
+            </div>
+            
+            <div class="controls">
+                <button id="btn-backward" class="control-btn">⏪ -10s</button>
+                <button id="btn-play-pause" class="control-btn primary">▶️ Play</button>
+                <button id="btn-forward" class="control-btn">+10s ⏩</button>
+            </div>
+        </div>
+        
+        <div class="quiz-section" id="quiz-section" style="display: none;">
+            <h3>📝 Quiz du chapitre</h3>
+            <button id="btn-start-quiz" class="btn-primary">Commencer le Quiz</button>
+        </div>
+        
+        <div class="sync-status">
+            <span id="sync-indicator" class="sync-dot"></span>
+            <span id="sync-text">Synchronisé</span>
+        </div>
+    </div>
+    
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='mobile/js/websocket_client.js') }}"></script>
+    <script src="{{ url_for('static', filename='mobile/js/mobile_player.js') }}"></script>
+</body>
+</html>
