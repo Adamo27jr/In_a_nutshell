@@ -1,4 +1,4 @@
-Copy"""
+"""
 Indexe automatiquement les PDFs existants dans data/course_materials/
 sans créer de fichiers JSON redondants.
 """
