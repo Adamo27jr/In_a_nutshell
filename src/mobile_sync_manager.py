@@ -46,7 +46,7 @@ class MobileSyncManager:
         
         self.active_sessions[session_id] = session_data
         
-        print(f"📱 Session créée : {session_id} pour {user_id}")
+        print(f"Session créée : {session_id} pour {user_id}")
         
         return session_id
     
@@ -70,7 +70,7 @@ class MobileSyncManager:
                 'timestamp': datetime.now().isoformat()
             })
             
-            print(f"🎵 Position audio synchronisée : {position_seconds}s (session: {session_id[:8]}...)")
+            print(f"Position audio synchronisée : {position_seconds}s (session: {session_id[:8]}...)")
     
     def get_session_state(self, session_id: str) -> Optional[Dict]:
         """
@@ -98,7 +98,7 @@ class MobileSyncManager:
             self.active_sessions[session_id]['current_doc_title'] = doc_title
             self.active_sessions[session_id]['last_active'] = datetime.now().isoformat()
             
-            print(f"📖 Document actuel : {doc_title} (session: {session_id[:8]}...)")
+            print(f"Document actuel : {doc_title} (session: {session_id[:8]}...)")
     
     def update_quiz_state(self, session_id: str, quiz_data: Dict):
         """
@@ -113,7 +113,7 @@ class MobileSyncManager:
             self.active_sessions[session_id]['current_quiz'] = quiz_data
             self.active_sessions[session_id]['last_active'] = datetime.now().isoformat()
             
-            print(f"📝 Quiz actif (session: {session_id[:8]}...)")
+            print(f"Quiz actif (session: {session_id[:8]}...)")
     
     def close_session(self, session_id: str):
         """Ferme une session mobile."""
@@ -121,7 +121,7 @@ class MobileSyncManager:
             self.active_sessions[session_id]['is_active'] = False
             self.active_sessions[session_id]['ended_at'] = datetime.now().isoformat()
             
-            print(f"❌ Session fermée : {session_id[:8]}...")
+            print(f"Session fermée : {session_id[:8]}...")
     
     def get_active_sessions(self, user_id: Optional[str] = None) -> List[Dict]:
         """
@@ -166,4 +166,4 @@ class MobileSyncManager:
             del self.active_sessions[session_id]
         
         if sessions_to_remove:
-            print(f"🧹 {len(sessions_to_remove)} sessions inactives nettoyées")
+            print(f"{len(sessions_to_remove)} sessions inactives nettoyées")
