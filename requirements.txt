@@ -1,36 +1,36 @@
-# Core
+# Framework Web
 streamlit==1.31.0
-pillow==10.0.0
-numpy==1.24.0
-pandas==2.0.0
+flask==3.0.0
+flask-socketio==5.3.5
+flask-cors==4.0.0
+python-socketio==5.10.0
 
-# PDF Processing
+# IA et Machine Learning
+google-generativeai==0.3.2
+sentence-transformers==2.2.2
+faiss-cpu==1.7.4
+
+# Traitement de Documents
 PyMuPDF==1.23.0
 pdf2image==1.16.3
-
-# OCR
 pytesseract==0.3.10
-opencv-python>=4.8.0
 
-# LLM/Vision
-google-generativeai==0.3.0
+# Traitement d'Images
+pillow==10.1.0
+opencv-python==4.10.0.84
+numpy==1.24.3
+pandas==2.0.3
 
 # Audio
 gtts==2.5.0
 pydub==0.25.1
 
-# RAG
-sentence-transformers==2.2.0
-faiss-cpu==1.7.4
-
-# Utilities
-python-dotenv==1.0.0
-
-# Nouvelles dépendances pour l'interaction mobile
-flask-socketio==5.3.5
-python-socketio==5.10.0
+# QR Codes
 qrcode[pil]==7.4.2
+
+# Utilitaires
+python-dotenv==1.0.0
 websockets==12.0
 aiohttp==3.9.1
 sqlalchemy==2.0.23
-pillow==10.1.0
+requests==2.31.0
