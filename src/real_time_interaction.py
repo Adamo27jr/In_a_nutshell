@@ -1,6 +1,10 @@
+"""
+Gestionnaire d'interactions en temps réel via WebSocket.
+"""
+
 import asyncio
 import json
-from typing import Dict, Set, Callable, Any
+from typing import Dict, Set, Callable, Any, Optional
 from datetime import datetime
 
 class RealTimeInteractionManager:
@@ -31,7 +35,7 @@ class RealTimeInteractionManager:
             'timestamp': datetime.now().isoformat()
         }))
         
-        print(f"Connexion WebSocket enregistrée (session: {session_id[:8]}...)")
+        print(f"✅ Connexion WebSocket enregistrée (session: {session_id[:8]}...)")
     
     async def unregister_connection(self, session_id: str, websocket):
         """Désenregistre une connexion WebSocket."""
@@ -40,7 +44,7 @@ class RealTimeInteractionManager:
             if not self.connections[session_id]:
                 del self.connections[session_id]
         
-        print(f"Connexion WebSocket fermée (session: {session_id[:8]}...)")
+        print(f"❌ Connexion WebSocket fermée (session: {session_id[:8]}...)")
     
     async def broadcast_to_session(self, session_id: str, message: Dict):
         """
@@ -61,7 +65,7 @@ class RealTimeInteractionManager:
             try:
                 await websocket.send(message_json)
             except Exception as e:
-                print(f"Erreur envoi message : {e}")
+                print(f"⚠️  Erreur envoi message : {e}")
                 dead_connections.add(websocket)
         
         # Nettoyer les connexions mortes
@@ -86,7 +90,7 @@ class RealTimeInteractionManager:
         }
         
         await self.broadcast_to_session(session_id, message)
-        print(f"Question de quiz envoyée (session: {session_id[:8]}...)")
+        print(f"📝 Question de quiz envoyée (session: {session_id[:8]}...)")
     
     async def sync_audio_playback(
         self,
@@ -110,7 +114,7 @@ class RealTimeInteractionManager:
         }
         
         await self.broadcast_to_session(session_id, message)
-        print(f"Contrôle audio synchronisé : {action} @ {position}s (session: {session_id[:8]}...)")
+        print(f"🎵 Contrôle audio synchronisé : {action} @ {position}s (session: {session_id[:8]}...)")
     
     def register_event_handler(self, event_type: str, handler: Callable):
         """
@@ -121,7 +125,7 @@ class RealTimeInteractionManager:
             handler: Fonction de gestion
         """
         self.event_handlers[event_type] = handler
-        print(f"Handler enregistré pour : {event_type}")
+        print(f"✅ Handler enregistré pour : {event_type}")
     
     async def handle_client_message(
         self,
@@ -140,7 +144,7 @@ class RealTimeInteractionManager:
         if event_type in self.event_handlers:
             await self.event_handlers[event_type](session_id, message)
         else:
-            print(f"Type d'événement non géré : {event_type}")
+            print(f"⚠️  Type d'événement non géré : {event_type}")
     
     def get_active_connections_count(self, session_id: Optional[str] = None) -> int:
         """
