@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Mobile - AMU DataScience</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='mobile/css/quiz.css') }}">
+</head>
+<body>
+    <div class="quiz-container">
+        <header class="quiz-header">
+            <h1>📝 Quiz Interactif</h1>
+            <p id="question-counter">Question 1/5</p>
+            <div class="quiz-progress">
+                <div class="quiz-progress-bar" id="quiz-progress-bar" style="width: 20%;"></div>
+            </div>
+        </header>
+        
+        <div class="quiz-body" id="quiz-container">
+            <!-- Le contenu du quiz sera injecté ici par JavaScript -->
+        </div>
+    </div>
+    
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='mobile/js/websocket_client.js') }}"></script>
+    <script src="{{ url_for('static', filename='mobile/js/quiz_handler.js') }}"></script>
+</body>
+</html>
