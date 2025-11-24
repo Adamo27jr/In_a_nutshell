@@ -20,7 +20,7 @@ class WebSocketClient {
         });
         
         this.socket.on('connect', () => {
-            console.log('✅ WebSocket connecté');
+            console.log('WebSocket connecté');
             this.reconnectAttempts = 0;
             
             // Rejoindre la session
@@ -30,12 +30,12 @@ class WebSocketClient {
         });
         
         this.socket.on('disconnect', () => {
-            console.log('❌ WebSocket déconnecté');
+            console.log('WebSocket déconnecté');
             this.attemptReconnect();
         });
         
         this.socket.on('session_joined', (data) => {
-            console.log('📱 Session rejointe:', data);
+            console.log('Session rejointe:', data);
         });
         
         this.socket.on('audio_sync', (data) => {
@@ -47,24 +47,24 @@ class WebSocketClient {
         });
         
         this.socket.on('user_joined', (data) => {
-            console.log('👤 Utilisateur rejoint:', data);
+            console.log('Utilisateur rejoint:', data);
         });
         
         this.socket.on('user_left', (data) => {
-            console.log('👤 Utilisateur parti:', data);
+            console.log('Utilisateur parti:', data);
         });
     }
     
     attemptReconnect() {
         if (this.reconnectAttempts < this.maxReconnectAttempts) {
             this.reconnectAttempts++;
-            console.log(`🔄 Tentative de reconnexion ${this.reconnectAttempts}/${this.maxReconnectAttempts}...`);
+            console.log(`Tentative de reconnexion ${this.reconnectAttempts}/${this.maxReconnectAttempts}...`);
             
             setTimeout(() => {
                 this.connect();
             }, 2000 * this.reconnectAttempts);
         } else {
-            console.error('❌ Impossible de se reconnecter');
+            console.error('Impossible de se reconnecter');
         }
     }
     
@@ -72,7 +72,7 @@ class WebSocketClient {
         if (this.socket && this.socket.connected) {
             this.socket.emit(data.type, data);
         } else {
-            console.warn('⚠️  WebSocket non connecté');
+            console.warn('WebSocket non connecté');
         }
     }
     
