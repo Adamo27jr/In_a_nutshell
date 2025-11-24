@@ -863,12 +863,12 @@ def reindex_courses():
         return jsonify({'error': 'Course indexer non disponible'}), 503
     
     try:
-        print("🔄 Début de la réindexation...")
+        print("Début de la réindexation...")
         stats = course_indexer.scan_and_index_all()
         
         # Recréer le cache d'embeddings
         if gemini_assistant:
-            print("🔄 Recréation du cache d'embeddings...")
+            print("Recréation du cache d'embeddings...")
             gemini_assistant._create_embeddings_cache()
             
             # Sauvegarder le cache
@@ -1227,7 +1227,7 @@ def handle_audio_control(data):
     action = data.get('action')  # play, pause, seek
     position = data.get('position', 0)
     
-    print(f"🎵 Audio control: {action} @ {position}s (session: {session_id})")
+    print(f"Audio control: {action} @ {position}s (session: {session_id})")
     
     # Diffuser à tous les appareils de la session sauf l'émetteur
     emit('audio_sync', {
