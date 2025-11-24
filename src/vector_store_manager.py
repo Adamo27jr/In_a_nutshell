@@ -43,8 +43,8 @@ class VectorStoreManager:
         with open(metadata_file, 'wb') as f:
             pickle.dump(metadata, f)
         
-        print(f"✅ Embeddings sauvegardés : {embedding_file}")
-        print(f"✅ Métadonnées sauvegardées : {metadata_file}")
+        print(f"Embeddings sauvegardés : {embedding_file}")
+        print(f"Métadonnées sauvegardées : {metadata_file}")
     
     def load_embeddings(self, name: str = "course_embeddings") -> tuple:
         """
@@ -60,7 +60,7 @@ class VectorStoreManager:
         metadata_file = self.store_path / f"{name}_metadata.pkl"
         
         if not embedding_file.exists():
-            print(f"⚠️  Fichier d'embeddings non trouvé : {embedding_file}")
+            print(f"Fichier d'embeddings non trouvé : {embedding_file}")
             return None, []
         
         # Charger les embeddings
@@ -76,7 +76,7 @@ class VectorStoreManager:
         self.embeddings = embeddings
         self.metadata = metadata
         
-        print(f"✅ {len(embeddings)} embeddings chargés")
+        print(f"{len(embeddings)} embeddings chargés")
         
         return embeddings, metadata
     
@@ -98,7 +98,7 @@ class VectorStoreManager:
             Liste des résultats avec scores
         """
         if self.embeddings is None:
-            print("⚠️  Aucun embedding chargé")
+            print("Aucun embedding chargé")
             return []
         
         # Calculer les similarités cosinus
