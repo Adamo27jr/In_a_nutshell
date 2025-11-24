@@ -38,4 +38,4 @@ pip install -r requirements.txt
 # Configuration
 cp .env.example .env
 # Éditer .env et ajouter votre GEMINI_API_KEY
-API : AIzaSyCk6WIE0SpHVxko_H2GUcOCQb5Nq2fzS4c
+API : 
