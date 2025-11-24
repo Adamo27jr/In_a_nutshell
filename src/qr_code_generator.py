@@ -56,7 +56,7 @@ class QRCodeGenerator:
         output_path = self.output_dir / filename
         img.save(str(output_path))
         
-        print(f"📱 QR Code généré : {output_path}")
+        print(f"QR Code généré : {output_path}")
         
         return str(output_path)
     
@@ -97,7 +97,7 @@ class QRCodeGenerator:
         output_path = self.output_dir / filename
         img.save(str(output_path))
         
-        print(f"📖 QR Code chapitre généré : {output_path}")
+        print(f"QR Code chapitre généré : {output_path}")
         
         return str(output_path)
     
@@ -136,6 +136,6 @@ class QRCodeGenerator:
         output_path = self.output_dir / filename
         img.save(str(output_path))
         
-        print(f"📚 QR Code cours généré : {output_path}")
+        print(f"QR Code cours généré : {output_path}")
         
         return str(output_path)
