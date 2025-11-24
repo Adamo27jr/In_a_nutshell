@@ -39,9 +39,9 @@ class GeminiRAGAssistant:
         self.db_path = course_index_db
         
         # Modèle d'embeddings pour la recherche sémantique
-        print("🔄 Chargement du modèle d'embeddings...")
+        print("Chargement du modèle d'embeddings...")
         self.embedding_model = SentenceTransformer(embedding_model)
-        print("✅ Modèle d'embeddings chargé")
+        print("Modèle d'embeddings chargé")
         
         # Cache des embeddings
         self.chunk_embeddings = None
@@ -53,11 +53,11 @@ class GeminiRAGAssistant:
         cache_path = Path(self.db_path).parent / 'embeddings_cache.npz'
         
         if cache_path.exists():
-            print("📦 Chargement du cache d'embeddings...")
+            print("Chargement du cache d'embeddings...")
             data = np.load(cache_path, allow_pickle=True)
             self.chunk_embeddings = data['embeddings']
             self.chunk_data = data['chunk_data'].tolist()
-            print(f"✅ {len(self.chunk_data)} chunks chargés depuis le cache")
+            print(f"{len(self.chunk_data)} chunks chargés depuis le cache")
         else:
             print("🔨 Création du cache d'embeddings...")
             self._create_embeddings_cache()
@@ -67,7 +67,7 @@ class GeminiRAGAssistant:
                     embeddings=self.chunk_embeddings,
                     chunk_data=np.array(self.chunk_data, dtype=object)
                 )
-                print(f"✅ Cache créé avec {len(self.chunk_data)} chunks")
+                print(f"Cache créé avec {len(self.chunk_data)} chunks")
     
     def _create_embeddings_cache(self):
         """Crée les embeddings pour tous les chunks."""
@@ -85,7 +85,7 @@ class GeminiRAGAssistant:
         conn.close()
         
         if not rows:
-            print("⚠️  Aucun chunk trouvé dans la base de données")
+            print("Aucun chunk trouvé dans la base de données")
             return
         
         # Préparer les données
@@ -105,7 +105,7 @@ class GeminiRAGAssistant:
             texts.append(row[1])
         
         # Créer les embeddings
-        print(f"🔄 Création des embeddings pour {len(texts)} chunks...")
+        print(f"Création des embeddings pour {len(texts)} chunks...")
         self.chunk_embeddings = self.embedding_model.encode(
             texts,
             show_progress_bar=True,
@@ -356,7 +356,7 @@ Réponds UNIQUEMENT avec le JSON, sans texte supplémentaire."""
                 quiz_questions = json.loads(json_match.group())
                 return quiz_questions
             except json.JSONDecodeError:
-                print("❌ Erreur de parsing JSON")
+                print("Erreur de parsing JSON")
                 return []
         
         return []
