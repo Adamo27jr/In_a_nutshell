@@ -7,7 +7,7 @@ from pathlib import Path
 def extract_all_courses(course_root="data/course_materials"):
     """Extrait tous les PDFs trouvés dans course_materials"""
     
-    print("🔨 Extraction des cours AMU...\n")
+    print("Extraction des cours AMU...\n")
     
     corpus = {
         "course_materials": [],
@@ -36,10 +36,10 @@ def extract_all_courses(course_root="data/course_materials"):
     # Parcourir tous les PDFs
     all_pdfs = list(Path(course_root).rglob("*.pdf"))
     
-    print(f"📊 {len(all_pdfs)} fichiers PDF trouvés\n")
+    print(f"{len(all_pdfs)} fichiers PDF trouvés\n")
     
     for pdf_path in all_pdfs:
-        print(f"📄 {pdf_path.name}")
+        print(f"{pdf_path.name}")
         
         try:
             # Ouvrir le PDF
@@ -71,18 +71,18 @@ def extract_all_courses(course_root="data/course_materials"):
             }
             
             corpus["course_materials"].append(course_entry)
-            print(f"   ✅ {len(doc)} pages extraites\n")
+            print(f"   {len(doc)} pages extraites\n")
             
         except Exception as e:
-            print(f"   ❌ Erreur: {e}\n")
+            print(f"   Erreur: {e}\n")
     
     # Sauvegarder
     output_file = "data/amu_datascience_corpus.json"
     with open(output_file, 'w', encoding='utf-8') as f:
         json.dump(corpus, indent=2, ensure_ascii=False, fp=f)
     
-    print(f"✅ Corpus sauvegardé: {output_file}")
-    print(f"📊 {len(corpus['course_materials'])} cours extraits")
+    print(f"Corpus sauvegardé: {output_file}")
+    print(f"{len(corpus['course_materials'])} cours extraits")
 
 
 if __name__ == "__main__":
