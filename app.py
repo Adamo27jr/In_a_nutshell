@@ -1,3 +1,8 @@
+"""
+Application Flask principale - Upload et Scan de Livre/PDF → Résumés Vocaux + Quiz + Assistant Gemini
+Projet AMU Data Science avec interaction mobile et assistant IA
+"""
+
 from flask import Flask, render_template, request, jsonify, send_file, send_from_directory
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from flask_cors import CORS
@@ -7,6 +12,7 @@ from datetime import datetime
 from werkzeug.utils import secure_filename
 import uuid
 from dotenv import load_dotenv
+import google.generativeai as genai
 
 # Imports des modules existants
 from src.universal_document_processor import UniversalDocumentProcessor
@@ -121,8 +127,24 @@ except Exception as e:
 
 # Gestionnaire Gemini et indexeur
 try:
+    # Configuration Gemini
+    api_key = os.getenv('GOOGLE_API_KEY')
+    if api_key:
+        genai.configure(api_key=api_key)
+        gemini_model = genai.GenerativeModel(
+            model_name=os.getenv('GEMINI_MODEL', 'gemini-1.5-flash')
+        )
+        print("✅ Gemini API configurée")
+    else:
+        gemini_model = None
+        print("⚠️  GOOGLE_API_KEY non trouvée dans .env")
+except Exception as e:
+    print(f"⚠️  Erreur configuration Gemini: {e}")
+    gemini_model = None
+
+try:
     gemini_assistant = GeminiRAGAssistant(
-        course_index_db='database/course_index.db'
+        course_index_db='database/amu_courses.db'
     )
     print("✅ GeminiRAGAssistant initialisé")
 except Exception as e:
@@ -132,7 +154,7 @@ except Exception as e:
 try:
     course_indexer = CourseIndexer(
         course_materials_path=os.getenv('COURSE_MATERIALS_PATH', 'data/course_materials'),
-        index_db_path='database/course_index.db'
+        index_db_path='database/amu_courses.db'
     )
     print("✅ CourseIndexer initialisé")
 except Exception as e:
@@ -174,18 +196,19 @@ def health_check():
             'knowledge_base': knowledge_base is not None,
             'audio_generator': audio_generator is not None,
             'quiz_manager': quiz_manager is not None,
+            'gemini_model': gemini_model is not None,
             'gemini_assistant': gemini_assistant is not None,
             'course_indexer': course_indexer is not None
         }
     })
 
 # ============================================================================
-# ROUTES UPLOAD ET TRAITEMENT DE DOCUMENTS
+# ROUTES UPLOAD ET TRAITEMENT DE DOCUMENTS AVEC GEMINI
 # ============================================================================
 
 @app.route('/api/upload', methods=['POST'])
 def upload_file():
-    """Upload et traitement d'un document."""
+    """Upload simple d'un document."""
     if 'file' not in request.files:
         return jsonify({'error': 'Aucun fichier fourni'}), 400
     
@@ -219,6 +242,178 @@ def upload_file():
         })
     
     except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/upload-and-explain', methods=['POST'])
+def upload_and_explain():
+    """
+    Upload un document, l'explique avec Gemini et cherche des références
+    dans les cours existants de data/course_materials/
+    """
+    if 'file' not in request.files:
+        return jsonify({'error': 'Aucun fichier fourni'}), 400
+    
+    file = request.files['file']
+    
+    if file.filename == '':
+        return jsonify({'error': 'Nom de fichier vide'}), 400
+    
+    if not allowed_file(file.filename):
+        return jsonify({'error': 'Type de fichier non autorisé'}), 400
+    
+    if not gemini_model:
+        return jsonify({'error': 'Gemini API non configurée'}), 503
+    
+    try:
+        # 1. Sauvegarder le fichier uploadé
+        filename = secure_filename(file.filename)
+        file_id = generate_unique_id()
+        file_path = Path(app.config['UPLOAD_FOLDER']) / f"{file_id}_{filename}"
+        file.save(str(file_path))
+        
+        print(f"📄 Fichier uploadé : {filename}")
+        
+        # 2. Extraire le texte du document
+        if document_processor:
+            extracted_text = document_processor.process_document(str(file_path))
+            print(f"✅ Texte extrait : {len(extracted_text)} caractères")
+        else:
+            return jsonify({'error': 'Document processor non disponible'}), 500
+        
+        if len(extracted_text) < 50:
+            return jsonify({'error': 'Document trop court ou vide'}), 400
+        
+        # 3. Analyser le contenu pour identifier le sujet
+        print("🔍 Analyse du sujet avec Gemini...")
+        subject_prompt = f"""Analyse ce texte et identifie le sujet principal en quelques mots-clés pertinents pour la Data Science.
+
+Texte:
+{extracted_text[:1500]}
+
+Réponds UNIQUEMENT avec 3-5 mots-clés séparés par des virgules (ex: machine learning, régression, python).
+Ne donne pas d'explication, juste les mots-clés."""
+        
+        subject_response = gemini_model.generate_content(subject_prompt)
+        keywords = subject_response.text.strip()
+        print(f"🏷️  Mots-clés identifiés : {keywords}")
+        
+        # 4. Chercher des cours pertinents dans data/course_materials/
+        relevant_courses = []
+        if gemini_assistant:
+            print("📚 Recherche de cours pertinents...")
+            try:
+                relevant_chunks = gemini_assistant.find_relevant_chunks(
+                    query=keywords,
+                    top_k=5
+                )
+                
+                # Dédupliquer par doc_id
+                seen_docs = set()
+                for chunk in relevant_chunks:
+                    doc_id = chunk['doc_id']
+                    if doc_id not in seen_docs:
+                        relevant_courses.append({
+                            'doc_id': doc_id,
+                            'title': chunk['title'],
+                            'level': chunk['level'],
+                            'category': chunk['category'],
+                            'file_path': chunk['file_path'],
+                            'relevance': round(chunk['similarity'] * 100, 1),
+                            'content_preview': chunk['content'][:300] + '...'
+                        })
+                        seen_docs.add(doc_id)
+                
+                print(f"✅ {len(relevant_courses)} cours pertinents trouvés")
+            except Exception as e:
+                print(f"⚠️  Erreur recherche de cours : {e}")
+        
+        # 5. Générer l'explication avec Gemini + références aux cours
+        print("🤖 Génération de l'explication avec Gemini...")
+        
+        if relevant_courses:
+            # Construire le contexte avec les cours trouvés
+            context_parts = []
+            for i, course in enumerate(relevant_courses[:3], 1):
+                context_parts.append(
+                    f"[Cours {i}: {course['title']} - {course['level']}/{course['category']} - Pertinence: {course['relevance']}%]\n"
+                    f"{course['content_preview']}"
+                )
+            
+            context = "\n\n---\n\n".join(context_parts)
+            
+            explanation_prompt = f"""Tu es un assistant pédagogique expert en Data Science pour l'université AMU.
+
+DOCUMENT UPLOADÉ PAR L'ÉTUDIANT:
+{extracted_text[:3000]}
+
+COURS DE RÉFÉRENCE DISPONIBLES DANS LA BASE AMU:
+{context}
+
+TÂCHE:
+1. Explique le contenu du document uploadé de manière claire et pédagogique
+2. Fais des liens explicites avec les cours de référence AMU mentionnés ci-dessus
+3. Structure ta réponse avec des sections claires (utilise des titres avec **)
+4. Cite les cours AMU pertinents (ex: "Selon le cours Machine Learning M1...")
+5. Ajoute des exemples concrets si pertinent
+6. Si le document traite d'un sujet similaire à un cours AMU, mentionne-le
+
+EXPLICATION DÉTAILLÉE:"""
+        else:
+            explanation_prompt = f"""Tu es un assistant pédagogique expert en Data Science pour l'université AMU.
+
+DOCUMENT UPLOADÉ PAR L'ÉTUDIANT:
+{extracted_text[:3000]}
+
+TÂCHE:
+1. Explique le contenu de ce document de manière claire et pédagogique
+2. Structure ta réponse avec des sections claires (utilise des titres avec **)
+3. Ajoute des exemples concrets si pertinent
+4. Indique que ce sujet n'est pas directement couvert dans les cours AMU disponibles
+
+EXPLICATION DÉTAILLÉE:"""
+        
+        explanation_response = gemini_model.generate_content(
+            explanation_prompt,
+            generation_config=genai.types.GenerationConfig(
+                temperature=0.7,
+                max_output_tokens=2048
+            )
+        )
+        explanation = explanation_response.text
+        print("✅ Explication générée")
+        
+        # 6. Générer un résumé court
+        print("📝 Génération du résumé...")
+        summary_prompt = f"""Résume en 2-3 phrases claires le contenu principal de ce document:
+
+{extracted_text[:2000]}
+
+Résumé concis:"""
+        
+        summary_response = gemini_model.generate_content(summary_prompt)
+        summary = summary_response.text.strip()
+        
+        # 7. Retourner la réponse complète
+        response_data = {
+            'success': True,
+            'file_id': file_id,
+            'filename': filename,
+            'keywords': keywords,
+            'summary': summary,
+            'explanation': explanation,
+            'relevant_courses': relevant_courses,
+            'has_course_references': len(relevant_courses) > 0,
+            'text_length': len(extracted_text),
+            'text_preview': extracted_text[:500] + '...' if len(extracted_text) > 500 else extracted_text
+        }
+        
+        print(f"✅ Réponse complète générée pour {filename}")
+        return jsonify(response_data)
+    
+    except Exception as e:
+        print(f"❌ Erreur : {e}")
+        import traceback
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/process/<file_id>', methods=['POST'])
@@ -336,12 +531,16 @@ def ask_question():
         if not question:
             return jsonify({'error': 'Question requise'}), 400
         
+        print(f"❓ Question reçue : {question}")
+        
         # Obtenir la réponse avec références aux cours
         result = gemini_assistant.answer_question(
             question=question,
             level=level,
             include_sources=include_sources
         )
+        
+        print(f"✅ Réponse générée avec {len(result['sources'])} sources")
         
         return jsonify({
             'success': True,
@@ -354,13 +553,13 @@ def ask_question():
         })
     
     except Exception as e:
+        print(f"❌ Erreur : {e}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/chat', methods=['POST'])
 def chat_with_assistant():
     """
     Endpoint de chat conversationnel avec l'assistant.
-    Maintient un historique de conversation.
     """
     if not gemini_assistant:
         return jsonify({'error': 'Assistant Gemini non disponible'}), 503
@@ -374,7 +573,6 @@ def chat_with_assistant():
             return jsonify({'error': 'Message requis'}), 400
         
         # Pour l'instant, traiter comme une question simple
-        # TODO: Implémenter la gestion de l'historique de conversation
         result = gemini_assistant.answer_question(
             question=message,
             include_sources=True
@@ -390,6 +588,126 @@ def chat_with_assistant():
         })
     
     except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/explain-topic', methods=['POST'])
+def explain_topic():
+    """
+    Explique un sujet spécifique en utilisant les cours comme référence.
+    
+    Body JSON:
+    {
+        "topic": "Réseaux de neurones convolutifs",
+        "level": "M2",
+        "detail_level": "detailed"  // simple, detailed, expert
+    }
+    """
+    if not gemini_model:
+        return jsonify({'error': 'Gemini API non configurée'}), 503
+    
+    try:
+        data = request.json
+        topic = data.get('topic')
+        level = data.get('level')
+        detail_level = data.get('detail_level', 'detailed')
+        
+        if not topic:
+            return jsonify({'error': 'Topic requis'}), 400
+        
+        print(f"📖 Explication demandée : {topic} (niveau: {detail_level})")
+        
+        # Chercher des cours pertinents
+        relevant_courses = []
+        if gemini_assistant:
+            relevant_chunks = gemini_assistant.find_relevant_chunks(
+                query=topic,
+                top_k=3,
+                level=level
+            )
+            
+            seen_docs = set()
+            for chunk in relevant_chunks:
+                doc_id = chunk['doc_id']
+                if doc_id not in seen_docs:
+                    relevant_courses.append({
+                        'title': chunk['title'],
+                        'level': chunk['level'],
+                        'category': chunk['category'],
+                        'content': chunk['content'][:500]
+                    })
+                    seen_docs.add(doc_id)
+        
+        # Construire le prompt selon le niveau de détail
+        detail_instructions = {
+            'simple': "Explique de manière simple et accessible, comme à un débutant. Utilise des analogies.",
+            'detailed': "Explique de manière détaillée avec des exemples concrets et des formules si nécessaire.",
+            'expert': "Explique de manière technique et approfondie, avec les détails mathématiques et les nuances importantes."
+        }
+        
+        if relevant_courses:
+            context = "\n\n".join([
+                f"Extrait du cours '{course['title']}' ({course['level']}/{course['category']}):\n{course['content']}"
+                for course in relevant_courses
+            ])
+            
+            prompt = f"""Tu es un professeur expert en Data Science à l'université AMU.
+
+SUJET À EXPLIQUER: {topic}
+
+EXTRAITS DES COURS AMU PERTINENTS:
+{context}
+
+INSTRUCTIONS:
+{detail_instructions.get(detail_level, detail_instructions['detailed'])}
+
+Structure ta réponse ainsi:
+1. **Définition** : Qu'est-ce que c'est ?
+2. **Principe de fonctionnement** : Comment ça marche ?
+3. **Applications** : À quoi ça sert ?
+4. **Exemples concrets**
+5. **Lien avec les cours AMU** : Mentionne explicitement les cours pertinents
+
+EXPLICATION:"""
+        else:
+            prompt = f"""Tu es un professeur expert en Data Science.
+
+SUJET À EXPLIQUER: {topic}
+
+INSTRUCTIONS:
+{detail_instructions.get(detail_level, detail_instructions['detailed'])}
+
+Structure ta réponse ainsi:
+1. **Définition** : Qu'est-ce que c'est ?
+2. **Principe de fonctionnement** : Comment ça marche ?
+3. **Applications** : À quoi ça sert ?
+4. **Exemples concrets**
+
+Note: Ce sujet n'est pas directement couvert dans les cours AMU disponibles.
+
+EXPLICATION:"""
+        
+        response = gemini_model.generate_content(
+            prompt,
+            generation_config=genai.types.GenerationConfig(
+                temperature=0.7,
+                max_output_tokens=2048
+            )
+        )
+        
+        return jsonify({
+            'success': True,
+            'topic': topic,
+            'detail_level': detail_level,
+            'explanation': response.text,
+            'relevant_courses': [
+                {'title': c['title'], 'level': c['level'], 'category': c['category']}
+                for c in relevant_courses
+            ],
+            'has_course_references': len(relevant_courses) > 0
+        })
+    
+    except Exception as e:
+        print(f"❌ Erreur : {e}")
         return jsonify({'error': str(e)}), 500
 
 # ============================================================================
@@ -414,6 +732,9 @@ def list_courses():
         for doc in documents:
             level = doc['level']
             category = doc['category']
+            
+            if level not in organized:
+                organized[level] = {}
             
             if category not in organized[level]:
                 organized[level][category] = []
@@ -483,7 +804,7 @@ def get_course_details(doc_id):
     try:
         import sqlite3
         
-        conn = sqlite3.connect('database/course_index.db')
+        conn = sqlite3.connect('database/amu_courses.db')
         cursor = conn.cursor()
         
         # Récupérer les informations du document
@@ -552,10 +873,12 @@ def reindex_courses():
         return jsonify({'error': 'Course indexer non disponible'}), 503
     
     try:
+        print("🔄 Début de la réindexation...")
         stats = course_indexer.scan_and_index_all()
         
         # Recréer le cache d'embeddings
         if gemini_assistant:
+            print("🔄 Recréation du cache d'embeddings...")
             gemini_assistant._create_embeddings_cache()
             
             # Sauvegarder le cache
@@ -566,6 +889,7 @@ def reindex_courses():
                 embeddings=gemini_assistant.chunk_embeddings,
                 chunk_data=np.array(gemini_assistant.chunk_data, dtype=object)
             )
+            print("✅ Cache d'embeddings sauvegardé")
         
         return jsonify({
             'success': True,
@@ -574,6 +898,7 @@ def reindex_courses():
         })
     
     except Exception as e:
+        print(f"❌ Erreur réindexation : {e}")
         return jsonify({'error': str(e)}), 500
 
 # ============================================================================
@@ -664,6 +989,81 @@ def generate_custom_quiz():
             'based_on': relevant_chunks[0]['title'],
             'quiz': quiz
         })
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/quiz/from-upload/<file_id>', methods=['POST'])
+def generate_quiz_from_upload(file_id):
+    """
+    Génère un quiz à partir d'un document uploadé.
+    
+    Body JSON:
+    {
+        "num_questions": 5,
+        "difficulty": "intermediate"
+    }
+    """
+    if not gemini_model:
+        return jsonify({'error': 'Gemini API non configurée'}), 503
+    
+    try:
+        data = request.json or {}
+        num_questions = data.get('num_questions', 5)
+        difficulty = data.get('difficulty', 'intermediate')
+        
+        # Récupérer le fichier
+        upload_folder = Path(app.config['UPLOAD_FOLDER'])
+        file_path = None
+        
+        for file in upload_folder.glob(f"{file_id}_*"):
+            file_path = file
+            break
+        
+        if not file_path:
+            return jsonify({'error': 'Fichier non trouvé'}), 404
+        
+        # Extraire le texte
+        if document_processor:
+            text = document_processor.process_document(str(file_path))
+        else:
+            return jsonify({'error': 'Document processor non disponible'}), 500
+        
+        # Générer le quiz avec Gemini
+        quiz_prompt = f"""Génère {num_questions} questions à choix multiples basées sur ce contenu.
+Difficulté: {difficulty}
+
+CONTENU:
+{text[:3000]}
+
+Format JSON strict (sans texte supplémentaire):
+[
+  {{
+    "question": "Question claire et précise",
+    "options": ["Option A", "Option B", "Option C", "Option D"],
+    "correct_answer": "Option correcte",
+    "explanation": "Explication détaillée",
+    "difficulty": "{difficulty}"
+  }}
+]"""
+        
+        response = gemini_model.generate_content(quiz_prompt)
+        
+        # Parser le JSON
+        import json
+        import re
+        
+        json_match = re.search(r'\[.*\]', response.text, re.DOTALL)
+        if json_match:
+            quiz = json.loads(json_match.group())
+            return jsonify({
+                'success': True,
+                'file_id': file_id,
+                'num_questions': len(quiz),
+                'quiz': quiz
+            })
+        else:
+            return jsonify({'error': 'Impossible de parser le quiz généré'}), 500
     
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -827,7 +1227,6 @@ def handle_quiz_answer(data):
     answer = data.get('answer')
     
     # TODO: Implémenter la logique de vérification de la réponse
-    # Pour l'instant, réponse simulée
     is_correct = True  # À calculer
     
     emit('quiz_result', {
@@ -886,9 +1285,17 @@ if __name__ == '__main__':
     print("="*70)
     print(f"📍 URL: http://localhost:5000")
     print(f"📱 API: http://localhost:5000/api/")
+    print(f"🤖 Gemini Model: {'✅ Actif' if gemini_model else '❌ Inactif'}")
     print(f"🤖 Gemini Assistant: {'✅ Actif' if gemini_assistant else '❌ Inactif'}")
     print(f"📚 Course Indexer: {'✅ Actif' if course_indexer else '❌ Inactif'}")
     print(f"📱 Mobile Sync: {'✅ Actif' if sync_manager else '❌ Inactif'}")
+    print("="*70)
+    print("\n📋 ENDPOINTS PRINCIPAUX:")
+    print("  POST /api/upload-and-explain - Upload + Explication Gemini")
+    print("  POST /api/ask - Poser une question")
+    print("  POST /api/explain-topic - Expliquer un sujet")
+    print("  GET  /api/courses - Lister les cours")
+    print("  POST /api/quiz/from-upload/<file_id> - Quiz depuis upload")
     print("="*70 + "\n")
     
     # Lancer l'application
@@ -897,5 +1304,5 @@ if __name__ == '__main__':
         debug=True,
         host='0.0.0.0',
         port=5000,
-        allow_unsafe_werkzeug=True  # Pour le développement uniquement
+        allow_unsafe_werkzeug=True
     )
