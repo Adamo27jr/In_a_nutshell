@@ -32,7 +32,7 @@ class GeminiRAGAssistant:
         genai.configure(api_key=api_key)
         
         self.model = genai.GenerativeModel(
-            model_name=os.getenv('GEMINI_MODEL', 'gemini-1.5-flash')
+            model_name=os.getenv('GEMINI_MODEL', 'models/gemini-2.5-flash')
         )
         
         # Base de données des cours
@@ -112,6 +112,14 @@ class GeminiRAGAssistant:
             convert_to_numpy=True
         )
     
+    def _generate_embedding(self, text: str) -> np.ndarray:
+        """Génère l'embedding pour un texte donné."""
+        return self.embedding_model.encode(
+            text,
+            convert_to_numpy=True,
+            normalize_embeddings=True
+        )
+    
     def find_relevant_chunks(
         self, 
         query: str, 
@@ -129,19 +137,22 @@ class GeminiRAGAssistant:
         Returns:
             Liste des chunks pertinents avec métadonnées
         """
-        if self.chunk_embeddings is None:
+        if self.chunk_embeddings is None or len(self.chunk_embeddings) == 0:
             return []
         
-        # Encoder la question
-        query_embedding = self.embedding_model.encode(
-            query,
-            convert_to_numpy=True
-        )
+        # Encoder la question avec normalisation
+        query_embedding = self._generate_embedding(query)
+        
+        # Normaliser les embeddings des chunks si ce n'est pas déjà fait
+        chunk_norms = np.linalg.norm(self.chunk_embeddings, axis=1, keepdims=True)
+        chunk_norms = np.where(chunk_norms == 0, 1, chunk_norms)  # Éviter division par zéro
+        normalized_chunks = self.chunk_embeddings / chunk_norms
         
         # Calculer les similarités cosinus
-        similarities = np.dot(self.chunk_embeddings, query_embedding) / (
-            np.linalg.norm(self.chunk_embeddings, axis=1) * np.linalg.norm(query_embedding)
-        )
+        similarities = np.dot(normalized_chunks, query_embedding)
+        
+        # Remplacer les NaN et Inf par 0
+        similarities = np.nan_to_num(similarities, nan=0.0, posinf=0.0, neginf=0.0)
         
         # Filtrer par niveau si spécifié
         if level:
@@ -149,21 +160,36 @@ class GeminiRAGAssistant:
                 i for i, chunk in enumerate(self.chunk_data)
                 if chunk['level'] == level
             ]
-            filtered_similarities = np.array([
-                similarities[i] if i in valid_indices else -1
-                for i in range(len(similarities))
-            ])
+            
+            if not valid_indices:
+                return []
+            
+            # Créer un masque pour les indices valides
+            mask = np.zeros(len(similarities), dtype=bool)
+            mask[valid_indices] = True
+            
+            # Mettre -1 pour les indices non valides
+            filtered_similarities = np.where(mask, similarities, -1.0)
         else:
             filtered_similarities = similarities
         
-        # Récupérer les top_k
+        # Récupérer les top_k indices
         top_indices = np.argsort(filtered_similarities)[-top_k:][::-1]
         
+        # Construire les résultats
         results = []
         for idx in top_indices:
-            if filtered_similarities[idx] > 0.3:  # Seuil de pertinence
+            similarity_score = float(filtered_similarities[idx])
+            
+            # Vérifier que la similarité est valide et au-dessus du seuil
+            if similarity_score > 0.2:  # Seuil de pertinence abaissé
                 chunk = self.chunk_data[idx].copy()
-                chunk['similarity'] = float(filtered_similarities[idx])
+                
+                # S'assurer que similarity est un nombre valide
+                if np.isnan(similarity_score) or np.isinf(similarity_score):
+                    similarity_score = 0.0
+                
+                chunk['similarity'] = similarity_score
                 results.append(chunk)
         
         return results
@@ -203,7 +229,7 @@ Réponds de manière claire et pédagogique, même sans documents de référence
             response = self.model.generate_content(prompt)
             
             return {
-                'answer': response.text,
+                'answer': self._extract_response_text(response),
                 'sources': [],
                 'has_course_references': False
             }
@@ -245,11 +271,32 @@ RÉPONSE :"""
             sources = self._format_sources(relevant_chunks)
         
         return {
-            'answer': response.text,
+            'answer': self._extract_response_text(response),
             'sources': sources,
             'has_course_references': True,
             'relevant_courses': list(set([c['title'] for c in relevant_chunks]))
         }
+    
+    def _extract_response_text(self, response) -> str:
+        """
+        Extrait le texte d'une réponse Gemini de manière robuste.
+        Compatible avec toutes les versions de l'API.
+        """
+        try:
+            # Méthode 1 : Accessor simple
+            return response.text
+        except AttributeError:
+            # Méthode 2 : Accessor complet
+            try:
+                if response.candidates and len(response.candidates) > 0:
+                    parts = response.candidates[0].content.parts
+                    if parts and len(parts) > 0:
+                        return parts[0].text
+            except:
+                pass
+        
+        # Si tout échoue
+        return "Erreur : Impossible d'extraire la réponse de Gemini"
     
     def _build_context(self, chunks: List[Dict]) -> str:
         """Construit le contexte à partir des chunks pertinents."""
@@ -270,13 +317,20 @@ RÉPONSE :"""
         
         for chunk in chunks:
             doc_id = chunk['doc_id']
+            similarity = chunk.get('similarity', 0.0)
+            
+            # Vérifier que similarity est valide
+            if np.isnan(similarity) or np.isinf(similarity):
+                similarity = 0.0
+            
             if doc_id not in seen_docs:
                 sources.append({
+                    'doc_id': doc_id,
                     'title': chunk['title'],
                     'level': chunk['level'],
                     'category': chunk['category'],
                     'file_path': chunk['file_path'],
-                    'relevance': round(chunk['similarity'] * 100, 1)
+                    'similarity': float(similarity)
                 })
                 seen_docs.add(doc_id)
         
@@ -344,13 +398,14 @@ Format JSON strict :
 Réponds UNIQUEMENT avec le JSON, sans texte supplémentaire."""
         
         response = self.model.generate_content(prompt)
+        response_text = self._extract_response_text(response)
         
         # Parser la réponse JSON
         import json
         import re
         
         # Extraire le JSON de la réponse
-        json_match = re.search(r'\[.*\]', response.text, re.DOTALL)
+        json_match = re.search(r'\[.*\]', response_text, re.DOTALL)
         if json_match:
             try:
                 quiz_questions = json.loads(json_match.group())
