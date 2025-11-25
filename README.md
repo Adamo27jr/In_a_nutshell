@@ -113,6 +113,45 @@ Une fois lancée, ouvrez : **http://localhost:5000**
 
 ---
 
+---
+
+## ATTENTION : Accès Mobile via QR Code
+
+### **Problème Réseau Universitaire**
+
+Sur les réseaux **Eduroam** ou WiFi publics, la communication entre appareils est **bloquée par sécurité**. Le QR code ne fonctionnera pas directement.
+
+### **SOLUTION RECOMMANDÉE : Partage de Connexion**
+
+**Vous DEVEZ activer le partage de connexion de votre téléphone vers votre PC**
+
+#### **Android :**
+1. **Paramètres** → **Connexions** → **Point d'accès mobile et modem**
+2. Activer **"Point d'accès mobile"**
+3. Noter le nom du réseau WiFi et le mot de passe
+4. Sur votre PC : Se connecter à ce WiFi
+5. Relancer l'application : `python app.py`
+6. Scanner le nouveau QR code 
+
+#### **iPhone :**
+1. **Réglages** → **Partage de connexion**
+2. Activer **"Autoriser d'autres utilisateurs"**
+3. Noter le mot de passe WiFi affiché
+4. Sur votre PC : Se connecter au réseau de votre iPhone
+5. Relancer l'application : `python app.py`
+6. Scanner le nouveau QR code 
+
+#### **Côté PC (Windows) :**
+```powershell
+# 1. Connectez-vous au WiFi de votre téléphone
+# 2. Vérifiez la connexion
+ipconfig | findstr IPv4
+# 3. Relancez l'app
+venv\Scripts\activate
+python app.py
+
+---
+
 ## Relancer plus tard
 
 ### Windows
