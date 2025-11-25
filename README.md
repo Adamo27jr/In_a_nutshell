@@ -138,8 +138,3 @@ Sur les réseaux Eduroam ou WiFi publics, la communication entre appareils est b
 ### SOLUTION RECOMMANDÉE : Partage de Connexion
 
 Vous devez activer le partage de connexion de votre téléphone vers votre PC.
-
-python app.py
-```
-
----
