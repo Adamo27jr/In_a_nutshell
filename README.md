@@ -183,11 +183,3 @@ python app.py
 ```
 
 ---
-
-## Checklist
-
-- [ ] Python 3.8+ installé
-- [ ] Git installé
-- [ ] Environnement virtuel activé `(venv)`
-- [ ] Clé API Gemini configurée
-- [ ] Application accessible sur localhost:5000
