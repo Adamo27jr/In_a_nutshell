@@ -1,7 +1,23 @@
-# In_a_nutshell
-1. README.md
+Voici l'objectif de notre projet :
 
-Transforme tes documents d'étude (PDFs, couvertures de livres, notes de cours) en podcasts audio avec quiz auto-générés. Construit avec RAG, Gemini Vision AI, et optimisé pour l'apprentissage mobile en déplacement.
+## In_a_nutshell - Assistant d'Apprentissage Intelligent
+
+**In_a_nutshell** est un assistant d'étude alimenté par l'IA qui transforme vos cours de Data Science en expérience d'apprentissage interactive. Grâce à la technologie **RAG (Retrieval-Augmented Generation)** et l'**API Gemini de Google**, posez des questions directement à vos documents et obtenez des réponses précises avec sources citées.
+
+### Fonctionnalités Actuelles
+
+- **Chat Intelligent avec vos Cours** : Interrogez 2834+ chunks de cours indexés en langage naturel
+- **Recherche Sémantique Avancée** : Réponses contextualisées avec citations de sources
+- **Base de Connaissances AMU** : Cours M1/M2 Data Science pré-indexés (Apprentissage, Stats, Deep Learning...)
+- **Interface Mobile Optimisée** : Accès via QR code pour réviser en déplacement
+- **Accès aux Documents** : Téléchargement direct des PDFs depuis l'interface
+- **Quiz Interactifs** : Génération de QCM basés sur vos cours (fonctionnalité de base opérationnelle)
+
+### Axes d'Amélioration Prévus
+
+- **Génération de Podcasts Audio** : Transformation automatique de vos cours en format audio pour l'apprentissage passif
+- **Quiz Avancés Auto-Générés** : Amélioration du système actuel avec adaptation au niveau et suivi de progression
+- **Système d'Upload Optimisé** : Support multi-format avec OCR et traitement par Gemini Vision
 
 ## Équipe
 
