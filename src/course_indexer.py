@@ -454,3 +454,4 @@ class CourseIndexer:
         
         conn.close()
         return results
+        
