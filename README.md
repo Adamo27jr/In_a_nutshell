@@ -1,5 +1,3 @@
-Voici l'objectif de notre projet :
-
 ## In_a_nutshell - Assistant d'Apprentissage Intelligent
 
 **In_a_nutshell** est un assistant d'étude alimenté par l'IA qui transforme vos cours de Data Science en expérience d'apprentissage interactive. Grâce à la technologie **RAG (Retrieval-Augmented Generation)** et l'**API Gemini de Google**, posez des questions directement à vos documents et obtenez des réponses précises avec sources citées.
