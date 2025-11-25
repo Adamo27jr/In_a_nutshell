@@ -21,11 +21,11 @@ Transforme tes documents d'étude (PDFs, couvertures de livres, notes de cours) 
   - **Ubuntu:** `sudo apt-get install tesseract-ocr tesseract-ocr-fra tesseract-ocr-eng`
   - **Windows:** [Télécharger ici](https://github.com/UB-Mannheim/tesseract/wiki)
 
-# 🚀 Setup Rapide
+# Setup Rapide
 
-## 📋 Installation Complète (Copier-Coller par Bloc)
+## Installation Complète (Copier-Coller par Bloc)
 
-### 🪟 Windows (PowerShell)
+### Windows (PowerShell)
 
 ```powershell
 # 1. Clonage et navigation
@@ -52,7 +52,7 @@ python scripts/index_existing_courses.py
 python app.py
 ```
 
-### 🍎 Mac / 🐧 Linux
+### Mac / Linux
 
 ```bash
 # 1. Clonage et navigation
@@ -81,7 +81,7 @@ python app.py
 
 ---
 
-## 🔑 Configuration du fichier .env
+## Configuration du fichier .env
 
 Ajoutez ce contenu dans votre fichier `.env` :
 
@@ -97,17 +97,17 @@ INDEX_DB_PATH=database/amu_courses.db
 SECRET_KEY=dev-secret-key-change-in-production
 ```
 
-**📍 Obtenir une clé API :** https://makersuite.google.com/app/apikey
+**Obtenir une clé API :** https://makersuite.google.com/app/apikey
 
 ---
 
-## 🌐 Accès à l'application
+## Accès à l'application
 
 Une fois lancée, ouvrez : **http://localhost:5000**
 
 ---
 
-## 🔄 Relancer plus tard
+## Relancer plus tard
 
 ### Windows
 ```powershell
