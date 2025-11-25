@@ -25,12 +25,12 @@ Transforme tes documents d'étude (PDFs, couvertures de livres, notes de cours) 
 
 ```bash
 # Clone le repository
-git clone https://github.com/votre-equipe/snaplearn_audio_quiz.git
+git clone https://github.com/Adamo27jr/In_a_nutshell
 cd snaplearn_audio_quiz
 
 # Créer un environnement virtuel
 python -m venv venv
-source venv/bin/activate  # Sur Windows: venv\Scripts\activate
+source venv/bin/activate 
 
 # Installer les dépendances
 pip install -r requirements.txt
