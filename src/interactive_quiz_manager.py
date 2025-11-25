@@ -305,3 +305,4 @@ class InteractiveQuizManager:
             }
             for quiz_id, quiz_data in self.quizzes.items()
         ]
+
