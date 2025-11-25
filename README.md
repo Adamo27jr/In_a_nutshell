@@ -89,11 +89,17 @@ Ajoutez ce contenu dans votre fichier `.env` :
 # API Gemini
 GOOGLE_API_KEY=votre_clé_api_gemini_ici
 
-# Configuration
-GEMINI_MODEL=gemini-1.5-flash
+# Configuration Gemini
+GEMINI_MODEL=models/gemini-2.5-flash
 GEMINI_TEMPERATURE=0.7
+GEMINI_MAX_TOKENS=2048
+
+# Chemins
 COURSE_MATERIALS_PATH=data/course_materials
 INDEX_DB_PATH=database/amu_courses.db
+VECTOR_STORE_PATH=database/vector_embeddings
+
+# Secret Key
 SECRET_KEY=dev-secret-key-change-in-production
 ```
 
