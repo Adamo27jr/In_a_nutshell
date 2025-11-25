@@ -23,9 +23,9 @@ Transforme tes documents d'étude (PDFs, couvertures de livres, notes de cours) 
 
 ### Setup
 
-📝 Résumé des Commandes (Copier-Coller)
-Windows (PowerShell)
-Copy# Clonage et navigation
+Windows (PowerShell):
+
+# Clonage et navigation
 cd Desktop
 git clone https://github.com/votre-username/nom-du-repo.git
 cd nom-du-repo
@@ -47,8 +47,10 @@ notepad .env
 python database/init_database.py
 python scripts/index_existing_courses.py  # optionnel
 python app.py
-Mac/Linux
-Copy# Clonage et navigation
+
+MAC / Linux :
+
+# Clonage et navigation
 cd ~/Desktop
 git clone https://github.com/votre-username/nom-du-repo.git
 cd nom-du-repo
