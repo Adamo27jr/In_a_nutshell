@@ -23,19 +23,50 @@ Transforme tes documents d'étude (PDFs, couvertures de livres, notes de cours) 
 
 ### Setup
 
-```bash
-# Clone le repository
-git clone https://github.com/Adamo27jr/In_a_nutshell
-cd snaplearn_audio_quiz
+📝 Résumé des Commandes (Copier-Coller)
+Windows (PowerShell)
+Copy# Clonage et navigation
+cd Desktop
+git clone https://github.com/votre-username/nom-du-repo.git
+cd nom-du-repo
 
-# Créer un environnement virtuel
+# Configuration Python
+python --version
 python -m venv venv
-source venv/bin/activate 
+venv\Scripts\activate
 
-# Installer les dépendances
+# Installation
+pip install --upgrade pip
 pip install -r requirements.txt
 
-# Configuration
-cp .env.example .env
-# Éditer .env et ajouter votre GEMINI_API_KEY
-API : 
+# Configuration .env (puis éditer le fichier)
+New-Item .env
+notepad .env
+
+# Initialisation et lancement
+python database/init_database.py
+python scripts/index_existing_courses.py  # optionnel
+python app.py
+Mac/Linux
+Copy# Clonage et navigation
+cd ~/Desktop
+git clone https://github.com/votre-username/nom-du-repo.git
+cd nom-du-repo
+
+# Configuration Python
+python3 --version
+python3 -m venv venv
+source venv/bin/activate
+
+# Installation
+pip install --upgrade pip
+pip install -r requirements.txt
+
+# Configuration .env (puis éditer le fichier)
+touch .env
+nano .env
+
+# Initialisation et lancement
+python database/init_database.py
+python scripts/index_existing_courses.py  # optionnel
+python app.py
