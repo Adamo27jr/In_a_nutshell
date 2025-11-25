@@ -31,7 +31,7 @@ Transforme tes documents d'étude (PDFs, couvertures de livres, notes de cours) 
 # 1. Clonage et navigation
 cd Desktop
 git clone https://github.com/Adamo27jr/In_a_nutshell
-cd nom-du-repo
+cd In_a_nutshell
 
 # 2. Configuration Python
 python --version
@@ -58,7 +58,7 @@ python app.py
 # 1. Clonage et navigation
 cd ~/Desktop
 git clone https://github.com/Adamo27jr/In_a_nutshell
-cd nom-du-repo
+cd In_a_nutshell
 
 # 2. Configuration Python
 python3 --version
