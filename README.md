@@ -30,7 +30,7 @@ Transforme tes documents d'étude (PDFs, couvertures de livres, notes de cours) 
 ```powershell
 # 1. Clonage et navigation
 cd Desktop
-git clone https://github.com/votre-username/nom-du-repo.git
+git clone https://github.com/Adamo27jr/In_a_nutshell
 cd nom-du-repo
 
 # 2. Configuration Python
@@ -57,7 +57,7 @@ python app.py
 ```bash
 # 1. Clonage et navigation
 cd ~/Desktop
-git clone https://github.com/votre-username/nom-du-repo.git
+git clone https://github.com/Adamo27jr/In_a_nutshell
 cd nom-du-repo
 
 # 2. Configuration Python
@@ -125,12 +125,10 @@ python app.py
 
 ---
 
-## ✅ Checklist
+## Checklist
 
 - [ ] Python 3.8+ installé
 - [ ] Git installé
 - [ ] Environnement virtuel activé `(venv)`
 - [ ] Clé API Gemini configurée
 - [ ] Application accessible sur localhost:5000
-
-🎉 **Setup terminé !**
